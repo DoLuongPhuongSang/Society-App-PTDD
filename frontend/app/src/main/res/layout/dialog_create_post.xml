@@ -1,0 +1,30 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:padding="16dp"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <!-- CHỌN GROUP -->
+    <Spinner
+        android:id="@+id/spinnerGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <!-- NỘI DUNG -->
+    <EditText
+        android:id="@+id/edtPost"
+        android:hint="Nhập nội dung bài viết"
+        android:minLines="3"
+        android:layout_marginTop="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <!-- BUTTON -->
+    <Button
+        android:id="@+id/btnPost"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Đăng bài"
+        android:layout_marginTop="10dp"/>
+
+</LinearLayout>

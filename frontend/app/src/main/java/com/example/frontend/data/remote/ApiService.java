@@ -3,7 +3,9 @@ package com.example.frontend.data.remote;
 import com.example.frontend.data.model.ApiResponse;
 import com.example.frontend.data.model.Friend;
 import com.example.frontend.data.model.LoginResponse;
-
+import com.example.frontend.data.model.Member;
+import com.example.frontend.data.model.Group;
+import com.example.frontend.data.model.Post;
 import java.util.List;
 
 import retrofit2.Call;
@@ -48,4 +50,31 @@ public interface ApiService {
     // 6. Huỷ kết bạn
     @DELETE("friends/remove/{id}")
     Call<ApiResponse<Object>> removeFriend(@Path("id") String userId);
+
+    // ===== GROUP =====
+    @GET("groups/my-groups") // Phải khớp với router.get("/my-groups", ...)
+    Call<ApiResponse<List<Group>>> getMyGroups();
+    // create group
+    @POST("groups")
+    Call<ApiResponse<Group>> createGroup(@Body GroupRequest request);
+
+    // join
+    @POST("groups/{groupId}/join")
+    Call<ApiResponse<Object>> joinGroup(@Path("groupId") String groupId);
+
+    // leave
+    @POST("groups/{groupId}/leave")
+    Call<ApiResponse<Object>> leaveGroup(@Path("groupId") String groupId);
+
+    // members
+    @GET("groups/{groupId}/members")
+    Call<ApiResponse<List<Member>>> getMembers(@Path("groupId") String groupId);
+
+    // post
+    @POST("groups/post")
+    Call<ApiResponse<Object>> createPost(@Body CreatePostRequest request);
+
+    // posts list
+    @GET("groups/{groupId}/posts")
+    Call<ApiResponse<List<Post>>> getPosts(@Path("groupId") String groupId);
 }

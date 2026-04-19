@@ -1,3 +1,21 @@
 <resources>
     <string name="app_name">Society</string>
+    <string name="group_title">Nhóm</string>
+    <string name="back_button_description">Quay lại</string>
+
+    <string name="create_group">Tạo nhóm</string>
+    <string name="group_name_hint">Tên nhóm</string>
+    <string name="group_desc_hint">Mô tả</string>
+    <string name="create_group_button">Tạo nhóm</string>
+
+    <string name="join_button">Tham gia</string>
+    <string name="leave_button">Rời nhóm</string>
+
+    <string name="post_hint">Viết bài...</string>
+    <string name="post_button">Đăng</string>
+
+    <string name="view_members">Xem thành viên</string>
+    <string name="settings">Cài đặt</string>
+    <string name="add_post">Thêm bài viết</string>
+    <string name="add_group">Thêm nhóm</string>
 </resources>
