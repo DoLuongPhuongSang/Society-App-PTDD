@@ -22,7 +22,6 @@ import com.example.frontend.data.model.Post;
 import com.example.frontend.data.model.Quiz;
 import com.example.frontend.data.model.ReactionRequest;
 import com.example.frontend.data.remote.SubmitQuizRequest;
-
 import java.util.List;
 import java.util.Map;
 
@@ -55,7 +54,9 @@ public interface ApiService {
 
     @POST("auth/google-login")
     Call<ApiResponse<LoginResponse>> googleLogin(@Body GoogleLoginRequest request);
-
+    @POST("auth/facebook-login")
+    Call<ApiResponse<LoginResponse>>
+    facebookLogin(@Body FacebookLoginRequest request);
     @POST("auth/verify-otp")
     Call<ApiResponse> verifyOtp(@Body OtpRequest request);
 
