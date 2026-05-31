@@ -104,6 +104,9 @@
             android:name=".ui.group.EditGroupActivity"
             android:exported="false" />
         <activity
+            android:name=".ui.group.GroupMembersActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.feed.CreatePostActivity"
             android:exported="false" />
         <activity
