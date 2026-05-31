@@ -1,8 +1,12 @@
 package com.example.frontend.ui.group;
 
+import android.app.SearchManager;
+import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
+import android.widget.EditText;
 import android.widget.Toast;
-
+import com.example.frontend.ui.group.InvitationsFragment;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -36,11 +40,14 @@ public class GroupActivity extends AppCompatActivity {
 
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
         findViewById(R.id.btnAdd).setOnClickListener(v -> showCreateGroupSheet());
-        findViewById(R.id.btnSearch).setOnClickListener(v ->
-                Toast.makeText(this, "Tìm kiếm (chưa làm)", Toast.LENGTH_SHORT).show());
+        // Tìm kiếm: chuyển sang tab Khám phá với focus vào ô search
+        findViewById(R.id.btnSearch).setOnClickListener(v -> {
+            ViewPager2 pager = findViewById(R.id.viewPagerGroup);
+            pager.setCurrentItem(2, true); // Tab "Khám phá"
+        });
 
         ViewPager2 viewPager = findViewById(R.id.viewPagerGroup);
-        TabLayout tabLayout = findViewById(R.id.tabGroup);
+        TabLayout tabLayout  = findViewById(R.id.tabGroup);
 
         int dp36 = (int) (36 * getResources().getDisplayMetrics().density);
         tabLayout.setMinimumHeight(dp36);
@@ -54,7 +61,10 @@ public class GroupActivity extends AppCompatActivity {
     private void showCreateGroupSheet() {
         CreateGroupBottomSheet sheet = CreateGroupBottomSheet.newInstance();
         sheet.setOnGroupCreatedListener(() -> {
-            // TODO: refresh tab "Nhóm của bạn" sau khi tạo thành công
+            // Refresh tab "Nhóm của bạn"
+            ViewPager2 pager = findViewById(R.id.viewPagerGroup);
+            pager.setCurrentItem(0, true);
+            // Fragment sẽ tự reload khi resume
         });
         sheet.show(getSupportFragmentManager(), CreateGroupBottomSheet.TAG);
     }
@@ -69,9 +79,9 @@ public class GroupActivity extends AppCompatActivity {
         public Fragment createFragment(int position) {
             switch (position) {
                 case 0: return new MyGroupsFragment();
-                case 1: return PlaceholderFragment.newInstance("Bài viết");
-                case 2: return PlaceholderFragment.newInstance("Khám phá");
-                default: return PlaceholderFragment.newInstance("Lời mời");
+                case 1: return new GroupFeedFragment();
+                case 2: return new DiscoverGroupsFragment();
+                default: return new InvitationsFragment();
             }
         }
     }
