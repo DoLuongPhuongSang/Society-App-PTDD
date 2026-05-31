@@ -46,11 +46,16 @@ public class CreatePostFragment extends Fragment {
     private ImageView imgAvatar;
 
     private CreatePostViewModel viewModel;
+    private String groupId;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_feed_create_post, container, false);
+
+        if (getArguments() != null) {
+            groupId = getArguments().getString("groupId");
+        }
 
         // 1. Ánh xạ các View cơ bản
         edtContent = view.findViewById(R.id.edtContent);
@@ -113,7 +118,7 @@ public class CreatePostFragment extends Fragment {
         viewModel = new ViewModelProvider(this).get(CreatePostViewModel.class);
         observeViewModel();
 
-        btnBack.setOnClickListener(v -> getParentFragmentManager().popBackStack());
+        btnBack.setOnClickListener(v -> requireActivity().finish());
 
         // Gọi hàm chọn nhiều ảnh (Hỗ trợ GetMultipleContents)
         btnPickImage.setOnClickListener(v -> {
@@ -121,16 +126,20 @@ public class CreatePostFragment extends Fragment {
         });
 
         btnPost.setOnClickListener(v -> {
-            String content = edtContent.getText().toString().trim();
-            if (content.isEmpty() && selectedImageUris.isEmpty()) {
-                Toast.makeText(getContext(), "Hãy nhập nội dung hoặc chọn ảnh nhé!", Toast.LENGTH_SHORT).show();
-                return;
+        String content = edtContent.getText().toString().trim();
+        if (content.isEmpty() && selectedImageUris.isEmpty()) {
+            Toast.makeText(getContext(), "Hãy nhập nội dung hoặc chọn ảnh nhé!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Toast.makeText(getContext(), "Đang đăng bài...", Toast.LENGTH_SHORT).show();
+
+            // Đã sửa: truyền groupId khi đăng bài vào nhóm
+            if (groupId != null && !groupId.isEmpty()) {
+                viewModel.uploadPost(getContext(), content, selectedImageUris, groupId);
+            } else {
+                viewModel.uploadPost(getContext(), content, selectedImageUris);
             }
-
-            Toast.makeText(getContext(), "Đang đăng bài...", Toast.LENGTH_SHORT).show();
-
-            // ĐÃ SỬA: Đẩy toàn bộ danh sách selectedImageUris sang ViewModel
-            viewModel.uploadPost(getContext(), content, selectedImageUris);
         });
 
         return view;
@@ -145,9 +154,10 @@ public class CreatePostFragment extends Fragment {
         });
 
         viewModel.getIsSuccess().observe(getViewLifecycleOwner(), isSuccess -> {
-            if (isSuccess) {
+            if (Boolean.TRUE.equals(isSuccess)) {
                 Toast.makeText(getContext(), "Đăng bài thành công!", Toast.LENGTH_SHORT).show();
-                getParentFragmentManager().popBackStack();
+                requireActivity().setResult(android.app.Activity.RESULT_OK);
+                requireActivity().finish();
             }
         });
 

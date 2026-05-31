@@ -8,10 +8,6 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-feature android:name="android.hardware.camera" android:required="true" />
 
-    <uses-feature
-        android:name="android.hardware.camera"
-        android:required="true" />
-
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -102,6 +98,15 @@
             android:name=".ui.group.GroupActivity"
             android:exported="false" />
         <activity
+            android:name=".ui.group.GroupDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.group.EditGroupActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.feed.CreatePostActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.docs.DocsActivity"
             android:exported="false" />
         <activity
@@ -110,11 +115,6 @@
         <activity
             android:name=".ui.calendar.CalendarActivity"
             android:exported="false" />
-        <activity
-            android:name=".ui.auth.LoginActivity"
-            android:exported="false">
-        </activity>
-        <!-- LOGIN -->
         <activity
             android:name=".ui.auth.LoginActivity"
             android:exported="false" />

@@ -29,50 +29,53 @@ public class CreatePostViewModel extends ViewModel {
     public LiveData<Boolean> getIsSuccess() { return isSuccess; }
     public LiveData<String> getErrorMessage() { return errorMessage; }
 
-    // ĐÃ SỬA: Thay đổi tham số cuối từ `Uri imageUri` thành `List<Uri> imageUris`
-    public void uploadPost(Context context, String content, List<Uri> imageUris) {
+    /**
+     * @param groupId  null hoặc "" nếu đăng lên feed cá nhân, truyền groupId nếu đăng vào nhóm
+     */
+    public void uploadPost(Context context, String content, List<Uri> imageUris, String groupId) {
         isLoading.setValue(true);
 
-        // 1. Gói nội dung chữ
-        RequestBody contentBody = RequestBody.create(MediaType.parse("text/plain"), content != null ? content : "");
-
-        // 2. Khởi tạo mặc định cho privacy và groupId để không bị thiếu tham số API
+        RequestBody contentBody = RequestBody.create(MediaType.parse("text/plain"),
+                content != null ? content : "");
         RequestBody privacyBody = RequestBody.create(MediaType.parse("text/plain"), "Public");
-        RequestBody groupIdBody = RequestBody.create(MediaType.parse("text/plain"), "");
+        RequestBody groupIdBody = RequestBody.create(MediaType.parse("text/plain"),
+                groupId != null ? groupId : "");
 
-        // 3. Xử lý danh sách ảnh
         List<MultipartBody.Part> imageParts = new ArrayList<>();
         if (imageUris != null && !imageUris.isEmpty()) {
             for (Uri uri : imageUris) {
-                File file = FileUtils.getFileFromUri(context, uri); // Sử dụng đúng hàm của bạn
+                File file = FileUtils.getFileFromUri(context, uri);
                 if (file != null) {
                     String mimeType = context.getContentResolver().getType(uri);
                     if (mimeType == null) mimeType = "image/*";
-
                     RequestBody requestFile = RequestBody.create(MediaType.parse(mimeType), file);
-                    // ĐÃ SỬA: Đổi tên formData thành "images" (quan trọng nhất)
                     imageParts.add(MultipartBody.Part.createFormData("images", file.getName(), requestFile));
                 }
             }
         }
 
-        // 4. Gọi Retrofit với đủ 4 tham số như ApiService đã yêu cầu
-        ApiClient.getApiService(context).createPost(contentBody, privacyBody, groupIdBody, imageParts).enqueue(new Callback<ApiResponse<Post>>() {
-            @Override
-            public void onResponse(Call<ApiResponse<Post>> call, Response<ApiResponse<Post>> response) {
-                isLoading.setValue(false);
-                if (response.isSuccessful() && response.body() != null) {
-                    isSuccess.setValue(true);
-                } else {
-                    errorMessage.setValue("Lỗi server: " + response.code());
-                }
-            }
+        ApiClient.getApiService(context)
+                .createPost(contentBody, privacyBody, groupIdBody, imageParts)
+                .enqueue(new Callback<ApiResponse<Post>>() {
+                    @Override
+                    public void onResponse(Call<ApiResponse<Post>> call, Response<ApiResponse<Post>> response) {
+                        isLoading.setValue(false);
+                        if (response.isSuccessful() && response.body() != null) {
+                            isSuccess.setValue(true);
+                        } else {
+                            errorMessage.setValue("Lỗi server: " + response.code());
+                        }
+                    }
+                    @Override
+                    public void onFailure(Call<ApiResponse<Post>> call, Throwable t) {
+                        isLoading.setValue(false);
+                        errorMessage.setValue("Lỗi kết nối: " + t.getMessage());
+                    }
+                });
+    }
 
-            @Override
-            public void onFailure(Call<ApiResponse<Post>> call, Throwable t) {
-                isLoading.setValue(false);
-                errorMessage.setValue("Lỗi kết nối: " + t.getMessage());
-            }
-        });
+    // Overload không có groupId – giữ nguyên cho feed cá nhân
+    public void uploadPost(Context context, String content, List<Uri> imageUris) {
+        uploadPost(context, content, imageUris, null);
     }
 }
