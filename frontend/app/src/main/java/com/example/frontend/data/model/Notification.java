@@ -36,13 +36,13 @@ public class Notification {
     public String getMessage() {
         if (sender == null) return "Có thông báo mới";
         String name = sender.getUsername() != null ? sender.getUsername() : "Ai đó";
-        switch (type != null ? type : "") {
-            case "like":        return name + " đã thích bài viết của bạn";
-            case "comment":     return name + " đã bình luận bài viết của bạn";
-            case "friend_request": return name + " đã gửi lời mời kết bạn";
-            case "friend_accept":  return name + " đã chấp nhận lời mời kết bạn";
-            case "group_invite":   return name + " đã mời bạn vào nhóm";
-            default:            return name + " đã tương tác với bạn";
+        switch (type != null ? type.toUpperCase() : "") {
+            case "REACTION":       return name + " đã thích bài viết của bạn";
+            case "COMMENT":        return name + " đã bình luận bài viết của bạn";
+            case "FRIEND_REQUEST": return name + " đã gửi lời mời kết bạn";
+            case "FRIEND_ACCEPT":  return name + " đã chấp nhận lời mời kết bạn";
+            case "GROUP_INVITE":   return name + " đã mời bạn vào nhóm";
+            default:               return name + " đã tương tác với bạn";
         }
     }
 }

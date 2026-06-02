@@ -25,6 +25,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.frontend.R;
+import com.example.frontend.data.model.User;
+import com.example.frontend.data.repository.UserRepository;
+import com.example.frontend.utils.Result;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,7 +75,7 @@ public class CreatePostFragment extends Fragment {
         String myUsername = prefs.getString("USERNAME", "Người dùng");
         String myAvatarUrl = prefs.getString("USER_AVATAR", "");
 
-        if (tvUserName != null) {
+        if (!myUsername.isEmpty() && tvUserName != null) {
             tvUserName.setText(myUsername);
         }
 
@@ -82,6 +85,8 @@ public class CreatePostFragment extends Fragment {
                     .placeholder(R.drawable.ic_user)
                     .error(R.drawable.ic_user)
                     .into(imgAvatar);
+        } else {
+            loadProfileFallback();
         }
 
         // =======================================================
@@ -188,4 +193,38 @@ public class CreatePostFragment extends Fragment {
                 }
             }
     );
+
+    private void loadProfileFallback() {
+        UserRepository repository = new UserRepository(requireContext());
+        repository.getProfile().observe(getViewLifecycleOwner(), result -> {
+            if (result.status == Result.Status.SUCCESS && result.data != null) {
+                User user = result.data;
+                String username = user.getUsername();
+                String avatar = user.getAvatar();
+
+                SharedPreferences prefs = requireActivity().getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = prefs.edit();
+
+                if (username != null && !username.isEmpty()) {
+                    editor.putString("USERNAME", username);
+                    if (tvUserName != null) {
+                        tvUserName.setText(username);
+                    }
+                }
+
+                if (avatar != null && !avatar.isEmpty()) {
+                    editor.putString("USER_AVATAR", avatar);
+                    if (imgAvatar != null) {
+                        Glide.with(this)
+                                .load(avatar)
+                                .placeholder(R.drawable.ic_user)
+                                .error(R.drawable.ic_user)
+                                .into(imgAvatar);
+                    }
+                }
+
+                editor.apply();
+            }
+        });
+    }
 }

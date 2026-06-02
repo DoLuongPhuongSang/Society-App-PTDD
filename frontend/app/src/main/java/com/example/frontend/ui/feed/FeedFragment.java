@@ -20,9 +20,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.frontend.R;
+import com.example.frontend.data.model.User;
+import com.example.frontend.data.repository.UserRepository;
+import com.example.frontend.utils.Result;
 import java.util.ArrayList;
 
 public class FeedFragment extends Fragment {
+    private UserRepository userRepository;
     private FeedViewModel viewModel;
     private PostAdapter adapter;
 
@@ -56,6 +60,8 @@ public class FeedFragment extends Fragment {
                     .load(myAvatarUrl)
                     .placeholder(R.drawable.ic_user)
                     .into(imgMyAvatarInFeed);
+        } else {
+            loadProfileFallback(imgMyAvatarInFeed, tvCreatePostHint);
         }
 
         // =======================================================
@@ -135,6 +141,46 @@ public class FeedFragment extends Fragment {
         });
 
         return view;
+    }
+
+    private void loadProfileFallback(ImageView avatarView, TextView hintView) {
+        if (userRepository == null) {
+            userRepository = new UserRepository(requireContext());
+        }
+
+        userRepository.getProfile().observe(getViewLifecycleOwner(), result -> {
+            if (result.status == Result.Status.SUCCESS && result.data != null) {
+                User user = result.data;
+                String username = user.getUsername();
+                String avatar = user.getAvatar();
+
+                SharedPreferences prefs = requireActivity().getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = prefs.edit();
+
+                if (username != null && !username.isEmpty()) {
+                    editor.putString("USERNAME", username);
+                    if (hintView != null) {
+                        String shortName = username;
+                        if (username.contains(" ")) {
+                            shortName = username.substring(username.lastIndexOf(" ") + 1);
+                        }
+                        hintView.setText(shortName + " ơi, bạn muốn chia sẻ kiến thức gì?");
+                    }
+                }
+
+                if (avatar != null && !avatar.isEmpty()) {
+                    editor.putString("USER_AVATAR", avatar);
+                    if (avatarView != null) {
+                        Glide.with(this)
+                                .load(avatar)
+                                .placeholder(R.drawable.ic_user)
+                                .into(avatarView);
+                    }
+                }
+
+                editor.apply();
+            }
+        });
     }
 
     @Override
