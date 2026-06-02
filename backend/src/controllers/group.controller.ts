@@ -143,7 +143,7 @@ export const discoverGroups = async (req: AuthRequest, res: Response): Promise<v
         };
 
         if (search && search.trim()) {
-            filter.$text = { $search: search.trim() };
+            filter.groupName = { $regex: search.trim(), $options: "i" };
         }
 
         const [groups, total] = await Promise.all([

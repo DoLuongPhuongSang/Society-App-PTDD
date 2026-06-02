@@ -189,6 +189,31 @@ export const updateCover = async (
   }
 };
 
+// GET /api/user/search?q=keyword  – tìm kiếm người dùng theo tên
+export const searchUsers = async (
+  req: AuthRequest,
+  res: Response,
+): Promise<void> => {
+  try {
+    const userId = req.user!.id;
+    const q = (req.query.q as string || "").trim();
+    if (!q) {
+      res.status(200).json({ success: true, data: [] });
+      return;
+    }
+    const users = await User.find({
+      _id: { $ne: userId },
+      username: { $regex: q, $options: "i" },
+    })
+      .select("_id username avatar")
+      .limit(20)
+      .lean();
+    res.status(200).json({ success: true, data: users });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Lỗi tìm kiếm" });
+  }
+};
+
 export const getMyProfile = async (
   req: AuthRequest,
   res: Response,
