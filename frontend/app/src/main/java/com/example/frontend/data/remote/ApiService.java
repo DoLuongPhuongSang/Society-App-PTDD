@@ -16,6 +16,8 @@ import com.example.frontend.data.model.GroupMember;
 import com.example.frontend.data.model.GroupPost;
 import com.example.frontend.data.model.LiveModel;
 import com.example.frontend.data.model.LoginResponse;
+import com.example.frontend.data.model.NotificationListResponse;
+import com.example.frontend.data.model.Notification;
 import com.example.frontend.data.model.PagedResponse;
 import com.example.frontend.data.model.ReactionItem;
 import com.example.frontend.data.model.UpdateProfile;
@@ -91,7 +93,20 @@ public interface ApiService {
     @DELETE("friends/remove/{id}")
     Call<ApiResponse<Object>> removeFriend(@Path("id") String userId);
 
+    // ====== NOTIFICATIONS ======
+    @GET("notifications")
+    Call<NotificationListResponse> getNotifications(@Query("page") int page, @Query("limit") int limit);
+
+    @PUT("notifications/{id}/read")
+    Call<ApiResponse<Object>> markNotificationRead(@Path("id") String id);
+
+    @PUT("notifications/mark-all-read")
+    Call<ApiResponse<Object>> markAllNotificationsRead();
+
     // ====== USER ======
+    @GET("user/search")
+    Call<ApiResponse<List<User>>> searchUsers(@Query("q") String query);
+
     @GET("user/profile")
     Call<ApiResponse<User>> getMyProfile();
 

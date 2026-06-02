@@ -62,7 +62,7 @@ public class HomeActivity extends AppCompatActivity {
         setupDrawer();
         setupBottomTabs();
 
-        iconSearch.setOnClickListener(v -> Toast.makeText(this, "Mở tìm kiếm...", Toast.LENGTH_SHORT).show());
+        iconSearch.setOnClickListener(v -> startActivity(new Intent(this, com.example.frontend.ui.search.SearchActivity.class)));
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override

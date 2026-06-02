@@ -134,6 +134,9 @@
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity android:name=".ui.profile.EditProfileActivity" />
+        <activity
+            android:name=".ui.search.SearchActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
