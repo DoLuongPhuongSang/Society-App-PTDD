@@ -457,6 +457,16 @@ public class LoginActivity extends AppCompatActivity {
                 data.getUser().getId()
         );
 
+        editor.putString(
+                "USERNAME",
+                data.getUser().getUsername()
+        );
+
+        editor.putString(
+                "USER_AVATAR",
+                data.getUser().getAvatar()
+        );
+
         editor.putBoolean(
                 "IS_LOGGED_IN",
                 true
