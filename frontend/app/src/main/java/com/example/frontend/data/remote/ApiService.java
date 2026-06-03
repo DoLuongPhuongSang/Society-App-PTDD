@@ -209,6 +209,8 @@ public interface ApiService {
             @Part("content") RequestBody content,
             @Part("privacy") RequestBody privacy,
             @Part("groupId") RequestBody groupId,
+            @Part("tags") RequestBody tags,
+            @Part("initialReaction") RequestBody initialReaction,
             @Part List<MultipartBody.Part> images
     );
 

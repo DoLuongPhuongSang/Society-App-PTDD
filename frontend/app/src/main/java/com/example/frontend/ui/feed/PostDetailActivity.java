@@ -229,6 +229,13 @@ public class PostDetailActivity extends AppCompatActivity {
             String token = "Bearer " + getSavedToken();
             viewModel.deleteComment(token, currentPostId, commentId);
         });
+
+        // Lắng nghe khi reaction comment thay đổi → reload để đồng bộ server
+        commentAdapter.setOnReactionChangedListener(() -> {
+            if (currentPostId != null) {
+                viewModel.fetchComments(currentPostId);
+            }
+        });
     }
 
     private void observeViewModel() {

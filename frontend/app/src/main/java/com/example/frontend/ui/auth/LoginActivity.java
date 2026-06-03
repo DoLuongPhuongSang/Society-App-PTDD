@@ -501,7 +501,7 @@ public class LoginActivity extends AppCompatActivity {
             );
         }
 
-        editor.apply();
+        editor.commit(); // dùng commit() thay apply() để đảm bảo token được ghi xong trước khi chuyển màn hình
     }
 
     // HOME

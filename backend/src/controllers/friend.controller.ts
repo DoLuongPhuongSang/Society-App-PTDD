@@ -227,14 +227,13 @@ export const getFriends = async (
       .populate("requester", "_id username avatar")
       .populate("recipient", "_id username avatar");
 
-    const friends = friendships.map((f: any) => {
-      // Lọc ra người kia
-      if (f.requester._id.toString() === userId) {
-        return f.recipient;
-      } else {
-        return f.requester;
-      }
-    });
+    const friends = friendships
+      .map((f: any) => {
+        // Bỏ qua nếu populate trả null (user bị xóa)
+        if (!f.requester || !f.recipient) return null;
+        return f.requester._id.toString() === userId ? f.recipient : f.requester;
+      })
+      .filter(Boolean); // Loại bỏ null
 
     res.status(200).json({
       success: true,

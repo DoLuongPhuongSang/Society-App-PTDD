@@ -11,6 +11,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.view.Gravity;
+import android.widget.PopupWindow;
+import androidx.appcompat.app.AlertDialog;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,6 +41,7 @@ public class CreatePostFragment extends Fragment {
     private ImageView btnBack;
     private Button btnPost;
     private LinearLayout btnPickImage;
+    private LinearLayout optFeeling, optTag;
 
     // View và List chứa nhiều ảnh
     private RecyclerView rvImagePreview;
@@ -50,6 +54,9 @@ public class CreatePostFragment extends Fragment {
 
     private CreatePostViewModel viewModel;
     private String groupId;
+    private TextView tvSelectedMeta;
+    private List<User> selectedTags = new ArrayList<>();
+    private String selectedReaction = null;
 
     @Nullable
     @Override
@@ -64,6 +71,9 @@ public class CreatePostFragment extends Fragment {
         edtContent = view.findViewById(R.id.edtContent);
         btnPost = view.findViewById(R.id.btnPost);
         btnPickImage = view.findViewById(R.id.optImage);
+        optFeeling = view.findViewById(R.id.optFeeling);
+        optTag = view.findViewById(R.id.optTag);
+        tvSelectedMeta = view.findViewById(R.id.tvSelectedMeta);
         btnBack = view.findViewById(R.id.btnClose);
         tvUserName = view.findViewById(R.id.tvUserName);
         imgAvatar = view.findViewById(R.id.imgAvatar);
@@ -130,24 +140,113 @@ public class CreatePostFragment extends Fragment {
             imagePickerLauncher.launch("image/*");
         });
 
-        btnPost.setOnClickListener(v -> {
-        String content = edtContent.getText().toString().trim();
-        if (content.isEmpty() && selectedImageUris.isEmpty()) {
-            Toast.makeText(getContext(), "Hãy nhập nội dung hoặc chọn ảnh nhé!", Toast.LENGTH_SHORT).show();
-            return;
+        if (optFeeling != null) {
+            optFeeling.setOnClickListener(v -> {
+                View popupView = LayoutInflater.from(getContext()).inflate(R.layout.item_feed_reaction_popup, null);
+                final PopupWindow popupWindow = new PopupWindow(popupView,
+                        ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+                popupWindow.setOutsideTouchable(true);
+
+                ImageView btnReactLike = popupView.findViewById(R.id.btnReactLike);
+                ImageView btnReactLove = popupView.findViewById(R.id.btnReactLove);
+                ImageView btnReactHaha = popupView.findViewById(R.id.btnReactHaha);
+                ImageView btnReactWow = popupView.findViewById(R.id.btnReactWow);
+                ImageView btnReactSad = popupView.findViewById(R.id.btnReactSad);
+                ImageView btnReactAngry = popupView.findViewById(R.id.btnReactAngry);
+
+                btnReactLike.setOnClickListener(x -> { selectedReaction = "Like"; updateMetaText(); popupWindow.dismiss(); });
+                btnReactLove.setOnClickListener(x -> { selectedReaction = "Love"; updateMetaText(); popupWindow.dismiss(); });
+                btnReactHaha.setOnClickListener(x -> { selectedReaction = "Haha"; updateMetaText(); popupWindow.dismiss(); });
+                btnReactWow.setOnClickListener(x -> { selectedReaction = "Wow"; updateMetaText(); popupWindow.dismiss(); });
+                btnReactSad.setOnClickListener(x -> { selectedReaction = "Sad"; updateMetaText(); popupWindow.dismiss(); });
+                btnReactAngry.setOnClickListener(x -> { selectedReaction = "Angry"; updateMetaText(); popupWindow.dismiss(); });
+
+                popupWindow.showAtLocation(v, Gravity.NO_GRAVITY, 100, 100);
+            });
         }
 
-        Toast.makeText(getContext(), "Đang đăng bài...", Toast.LENGTH_SHORT).show();
+        if (optTag != null) {
+            optTag.setOnClickListener(v -> openTagDialog());
+        }
 
-            // Đã sửa: truyền groupId khi đăng bài vào nhóm
+        btnPost.setOnClickListener(v -> {
+            String content = edtContent.getText().toString().trim();
+            if (content.isEmpty() && selectedImageUris.isEmpty()) {
+                Toast.makeText(getContext(), "Hãy nhập nội dung hoặc chọn ảnh nhé!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            Toast.makeText(getContext(), "Đang đăng bài...", Toast.LENGTH_SHORT).show();
+
+            // Prepare tag ids
+            List<String> tagIds = new ArrayList<>();
+            for (User u : selectedTags) tagIds.add(u.getId());
+
+            // Đã sửa: truyền groupId khi đăng bài vào nhóm, cùng tags và initialReaction
             if (groupId != null && !groupId.isEmpty()) {
-                viewModel.uploadPost(getContext(), content, selectedImageUris, groupId);
+                viewModel.uploadPost(getContext(), content, selectedImageUris, groupId, tagIds, selectedReaction);
             } else {
-                viewModel.uploadPost(getContext(), content, selectedImageUris);
+                viewModel.uploadPost(getContext(), content, selectedImageUris, null, tagIds, selectedReaction);
             }
         });
 
         return view;
+    }
+
+    private void updateMetaText() {
+        StringBuilder s = new StringBuilder();
+        if (selectedReaction != null) s.append("Cảm xúc: ").append(selectedReaction);
+        if (!selectedTags.isEmpty()) {
+            if (s.length() > 0) s.append(" · ");
+            s.append("Đã gắn: ");
+            for (int i = 0; i < selectedTags.size(); i++) {
+                s.append(selectedTags.get(i).getUsername());
+                if (i < selectedTags.size() - 1) s.append(", ");
+            }
+        }
+        tvSelectedMeta.setText(s.toString());
+        tvSelectedMeta.setVisibility(s.length() > 0 ? View.VISIBLE : View.GONE);
+    }
+
+    private void openTagDialog() {
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_user_search, null);
+        AlertDialog dialog = new AlertDialog.Builder(requireContext()).setView(dialogView).create();
+
+        EditText edtSearch = dialogView.findViewById(R.id.edtSearchUser);
+        RecyclerView rvResults = dialogView.findViewById(R.id.rvUserResults);
+        Button btnDone = dialogView.findViewById(R.id.btnDoneSearch);
+
+        rvResults.setLayoutManager(new LinearLayoutManager(getContext()));
+        UserSearchAdapter adapter = new UserSearchAdapter(new ArrayList<>(), selectedTags);
+        rvResults.setAdapter(adapter);
+
+        edtSearch.setOnEditorActionListener((v, actionId, event) -> {
+            String q = edtSearch.getText().toString().trim();
+            if (!q.isEmpty()) {
+                com.example.frontend.data.remote.ApiClient.getApiService(requireContext()).searchUsers(q)
+                        .enqueue(new retrofit2.Callback<com.example.frontend.data.model.ApiResponse<java.util.List<User>>>() {
+                            @Override
+                            public void onResponse(retrofit2.Call<com.example.frontend.data.model.ApiResponse<java.util.List<User>>> call, retrofit2.Response<com.example.frontend.data.model.ApiResponse<java.util.List<User>>> response) {
+                                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                                    adapter.updateData(response.body().getData());
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(retrofit2.Call<com.example.frontend.data.model.ApiResponse<java.util.List<User>>> call, Throwable t) {
+                            }
+                        });
+            }
+            return true;
+        });
+
+        btnDone.setOnClickListener(v -> {
+            selectedTags = adapter.getSelectedUsers();
+            updateMetaText();
+            dialog.dismiss();
+        });
+
+        dialog.show();
     }
 
     // =======================================================
@@ -160,9 +259,16 @@ public class CreatePostFragment extends Fragment {
 
         viewModel.getIsSuccess().observe(getViewLifecycleOwner(), isSuccess -> {
             if (Boolean.TRUE.equals(isSuccess)) {
+                viewModel.resetSuccess(); // Tránh re-trigger khi quay lại fragment
                 Toast.makeText(getContext(), "Đăng bài thành công!", Toast.LENGTH_SHORT).show();
-                // Pop fragment khỏi back stack để quay lại FeedFragment
-                getParentFragmentManager().popBackStack();
+                // Nếu mở như Fragment (FeedFragment gọi), pop back stack
+                // Nếu mở như Activity standalone, finish Activity
+                if (getParentFragmentManager().getBackStackEntryCount() > 0) {
+                    getParentFragmentManager().popBackStack();
+                } else if (getActivity() != null) {
+                    getActivity().setResult(android.app.Activity.RESULT_OK);
+                    getActivity().finish();
+                }
             }
         });
 

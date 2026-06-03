@@ -22,17 +22,20 @@ import retrofit2.Response;
 public class CreatePostViewModel extends ViewModel {
 
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
-    private final MutableLiveData<Boolean> isSuccess = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> isSuccess = new MutableLiveData<>(null);
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
 
     public LiveData<Boolean> getIsLoading() { return isLoading; }
     public LiveData<Boolean> getIsSuccess() { return isSuccess; }
     public LiveData<String> getErrorMessage() { return errorMessage; }
 
+    /** Gọi sau khi đã xử lý success để tránh re-trigger khi quay lại Fragment */
+    public void resetSuccess() { isSuccess.setValue(null); }
+
     /**
      * @param groupId  null hoặc "" nếu đăng lên feed cá nhân, truyền groupId nếu đăng vào nhóm
      */
-    public void uploadPost(Context context, String content, List<Uri> imageUris, String groupId) {
+    public void uploadPost(Context context, String content, List<Uri> imageUris, String groupId, List<String> tagUserIds, String initialReaction) {
         isLoading.setValue(true);
 
         RequestBody contentBody = RequestBody.create(MediaType.parse("text/plain"),
@@ -40,6 +43,10 @@ public class CreatePostViewModel extends ViewModel {
         RequestBody privacyBody = RequestBody.create(MediaType.parse("text/plain"), "Public");
         RequestBody groupIdBody = RequestBody.create(MediaType.parse("text/plain"),
                 groupId != null ? groupId : "");
+        RequestBody tagsBody = RequestBody.create(MediaType.parse("text/plain"),
+                tagUserIds != null && !tagUserIds.isEmpty() ? new com.google.gson.Gson().toJson(tagUserIds) : "");
+        RequestBody reactionBody = RequestBody.create(MediaType.parse("text/plain"),
+                initialReaction != null ? initialReaction : "");
 
         List<MultipartBody.Part> imageParts = new ArrayList<>();
         if (imageUris != null && !imageUris.isEmpty()) {
@@ -55,7 +62,7 @@ public class CreatePostViewModel extends ViewModel {
         }
 
         ApiClient.getApiService(context)
-                .createPost(contentBody, privacyBody, groupIdBody, imageParts)
+                .createPost(contentBody, privacyBody, groupIdBody, tagsBody, reactionBody, imageParts)
                 .enqueue(new Callback<ApiResponse<Post>>() {
                     @Override
                     public void onResponse(Call<ApiResponse<Post>> call, Response<ApiResponse<Post>> response) {
@@ -76,6 +83,6 @@ public class CreatePostViewModel extends ViewModel {
 
     // Overload không có groupId – giữ nguyên cho feed cá nhân
     public void uploadPost(Context context, String content, List<Uri> imageUris) {
-        uploadPost(context, content, imageUris, null);
+        uploadPost(context, content, imageUris, null, null, null);
     }
 }
