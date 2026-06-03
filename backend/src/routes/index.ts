@@ -18,6 +18,8 @@ import groupRoutes from "./group.routes";
 import notificationRoutes from "./notification.routes";
 
 
+import storyRoutes from "./story.routes";
+
 const router = Router();
 
 // Auth routes
@@ -41,7 +43,7 @@ router.use('/posts', postRoutes);
 // Chat routes
 router.use('/chat', chatRoutes);
 
-router.use("/comments", commentRoutes); 
+router.use("/comments", commentRoutes);
 
 router.use('/quiz', quizRoutes);
 
@@ -55,5 +57,8 @@ router.use("/live", liveRoutes);
 
 // Notification routes
 router.use("/notifications", notificationRoutes);
+
+// Story routes
+router.use("/stories", storyRoutes);
 
 export default router;

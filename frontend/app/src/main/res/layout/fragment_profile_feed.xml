@@ -39,4 +39,15 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
+    <TextView
+        android:id="@+id/tvEmptyPosts"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Chưa có bài viết nào"
+        android:textColor="#9CA3AF"
+        android:textSize="14sp"
+        android:gravity="center"
+        android:padding="32dp"
+        android:visibility="gone"/>
+
 </LinearLayout>

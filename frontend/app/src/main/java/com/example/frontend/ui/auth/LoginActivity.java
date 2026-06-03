@@ -464,7 +464,7 @@ public class LoginActivity extends AppCompatActivity {
 
         editor.putString(
                 "USER_AVATAR",
-                data.getUser().getAvatar()
+                data.getUser().getAvatar() != null ? data.getUser().getAvatar() : ""
         );
 
         editor.putBoolean(
