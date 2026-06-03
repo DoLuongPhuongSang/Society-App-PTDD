@@ -129,7 +129,7 @@ public class FeedFragment extends Fragment {
         // =======================================================
         viewModel.getPosts().observe(getViewLifecycleOwner(), list -> {
             if (list != null) {
-<<<<<<< HEAD
+
                 // Filter bài viết: chỉ hiện bài đăng ở home (groupId == null), không hiện bài đăng trong nhóm
                 List<Post> homePostsOnly = new ArrayList<>();
                 for (Post post : list) {
@@ -138,18 +138,12 @@ public class FeedFragment extends Fragment {
                     }
                 }
                 adapter.updateData(homePostsOnly);
-=======
-                // Đổ thẳng toàn bộ danh sách (bao gồm cả bài viết Public và bài viết trong Nhóm) vào adapter
-                adapter.updateData(list);
->>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
+
             } else {
                 Toast.makeText(getContext(), "Không có bài viết nào hoặc lỗi tải tin", Toast.LENGTH_SHORT).show();
             }
         });
-<<<<<<< HEAD
 
-=======
->>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
         // Lắng nghe báo cáo kết quả XÓA từ ViewModel
         viewModel.getDeleteStatus().observe(getViewLifecycleOwner(), status -> {
             if ("SUCCESS".equals(status)) {

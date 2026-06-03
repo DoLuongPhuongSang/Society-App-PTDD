@@ -50,7 +50,7 @@ public class FriendRepository {
                 if (response.isSuccessful() && response.body() != null) {
                     resultLiveData.postValue(Result.success(response.body().getData()));
                 } else {
-<<<<<<< HEAD
+
                     // CẬP NHẬT: Đọc lỗi chi tiết từ server
                     try {
                         String errorDetail = "Lỗi " + response.code(); // Lấy mã lỗi (VD: 401, 404, 500)
@@ -66,9 +66,7 @@ public class FriendRepository {
                     } catch (Exception e) {
                         resultLiveData.postValue(Result.error("Lỗi lấy danh sách lời mời", null));
                     }
-=======
-                    resultLiveData.postValue(Result.error("Lỗi lấy danh sách lời mời", null));
->>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
+
                 }
             }
 
