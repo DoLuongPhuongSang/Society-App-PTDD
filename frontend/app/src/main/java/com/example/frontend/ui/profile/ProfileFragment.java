@@ -163,7 +163,14 @@ public class ProfileFragment extends Fragment {
         TextView tvGender   = v.findViewById(R.id.tvGender);
         Button btnEditDetails = v.findViewById(R.id.btnEditDetails);
 
+<<<<<<< HEAD
+        // FIX: Tải ảnh avatar vào phần "Bạn đang nghĩ gì"
+        ImageView imgPostAvatar = v.findViewById(R.id.imgPostAvatar);
+
+        // Load lại profile để hiện chi tiết & avatar đăng bài
+=======
         // Load lại profile để hiện chi tiết
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
         repository.getProfile().observe(getViewLifecycleOwner(), result -> {
             if (result.status != Result.Status.SUCCESS || result.data == null) return;
             User user = result.data;
@@ -171,6 +178,16 @@ public class ProfileFragment extends Fragment {
             setOptional(tvHometown, user.getHometown() != null ? "Đến từ " + user.getHometown() : null);
             setOptional(tvBirthday, user.getBirthday() != null ? "Sinh ngày " + user.getBirthday() : null);
             setOptional(tvGender,   user.getGender()   != null ? "Giới tính: " + user.getGender() : null);
+<<<<<<< HEAD
+
+            // Nếu có ô avatar đăng bài thì hiển thị ảnh của user
+            if (imgPostAvatar != null && user.getAvatar() != null) {
+                Glide.with(requireContext()).load(user.getAvatar())
+                        .placeholder(R.drawable.ic_profile)
+                        .into(imgPostAvatar);
+            }
+=======
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
         });
 
         btnEditDetails.setOnClickListener(b ->
@@ -512,4 +529,8 @@ public class ProfileFragment extends Fragment {
         if (text != null && !text.isEmpty()) { tv.setVisibility(View.VISIBLE); tv.setText(text); }
         else tv.setVisibility(View.GONE);
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b

@@ -53,6 +53,11 @@ public class HomeActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
 
+<<<<<<< HEAD
+    private int currentTab = 0; // 0: Home, 1: Friend, 2: Chat, 3: Library, 4: Notify, 5: Profile
+
+=======
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,7 +65,11 @@ public class HomeActivity extends AppCompatActivity {
 
         initViews();
         setupDrawer();
+<<<<<<< HEAD
+        setupBottomTabs(savedInstanceState);
+=======
         setupBottomTabs();
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
 
         iconSearch.setOnClickListener(v -> startActivity(new Intent(this, com.example.frontend.ui.search.SearchActivity.class)));
 
@@ -130,7 +139,11 @@ public class HomeActivity extends AppCompatActivity {
                 Intent intent = null;
                 if (id == R.id.nav_saved) intent = new Intent(this, SavedActivity.class);
                 else if (id == R.id.nav_docs) intent = new Intent(this, DocsActivity.class);
+<<<<<<< HEAD
+//                else if (id == R.id.nav_calendar) intent = new Intent(this, CalendarActivity.class);
+=======
                 else if (id == R.id.nav_calendar) intent = new Intent(this, CalendarActivity.class);
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
                 else if (id == R.id.nav_group) intent = new Intent(this, GroupActivity.class);
                 else if (id == R.id.nav_live) intent = new Intent(this, LiveStartActivity.class);
                 else if (id == R.id.nav_quiz) intent = new Intent(this, QuizListActivity.class);
@@ -215,9 +228,37 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
+<<<<<<< HEAD
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("CURRENT_TAB", currentTab);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        int selectTabExtra = intent.getIntExtra("SELECT_TAB", -1);
+        if (selectTabExtra != -1) {
+            restoreTab(selectTabExtra);
+        }
+    }
+
+    private void setupBottomTabs(Bundle savedInstanceState) {
+        int selectTabExtra = getIntent().getIntExtra("SELECT_TAB", -1);
+        if (selectTabExtra != -1) {
+            currentTab = selectTabExtra;
+        } else if (savedInstanceState != null) {
+            currentTab = savedInstanceState.getInt("CURRENT_TAB", 0);
+        } else {
+            currentTab = 0;
+        }
+=======
     private void setupBottomTabs() {
         // Mặc định chọn tab Home khi mới vào
         selectTab(imgHome, lineHome, new FeedFragment());
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
 
         tabHome.setOnClickListener(v -> selectTab(imgHome, lineHome, new FeedFragment()));
         tabFriend.setOnClickListener(v -> selectTab(imgFriend, lineFriend, new FriendFragment()));
@@ -225,6 +266,37 @@ public class HomeActivity extends AppCompatActivity {
         tabLibrary.setOnClickListener(v -> selectTab(imgLibrary, lineLibrary, new LibraryFragment()));
         tabNotify.setOnClickListener(v -> selectTab(imgNotify, lineNotify, new NotifyFragment()));
         tabProfile.setOnClickListener(v -> selectTab(imgProfile, lineProfile, new ProfileFragment()));
+<<<<<<< HEAD
+
+        restoreTab(currentTab);
+    }
+
+    private void restoreTab(int tab) {
+        switch (tab) {
+            case 0:
+                selectTab(imgHome, lineHome, new FeedFragment());
+                break;
+            case 1:
+                selectTab(imgFriend, lineFriend, new FriendFragment());
+                break;
+            case 2:
+                selectTab(imgChat, lineChat, new ChatFragment());
+                break;
+            case 3:
+                selectTab(imgLibrary, lineLibrary, new LibraryFragment());
+                break;
+            case 4:
+                selectTab(imgNotify, lineNotify, new NotifyFragment());
+                break;
+            case 5:
+                selectTab(imgProfile, lineProfile, new ProfileFragment());
+                break;
+            default:
+                selectTab(imgHome, lineHome, new FeedFragment());
+                break;
+        }
+=======
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
     }
 
     private void performLogout() {
@@ -259,6 +331,17 @@ public class HomeActivity extends AppCompatActivity {
         activeImg.setSelected(true);
         activeLine.setVisibility(View.VISIBLE);
         activeImg.animate().scaleX(1.1f).scaleY(1.1f).setDuration(150);
+<<<<<<< HEAD
+
+        if (activeImg == imgHome) currentTab = 0;
+        else if (activeImg == imgFriend) currentTab = 1;
+        else if (activeImg == imgChat) currentTab = 2;
+        else if (activeImg == imgLibrary) currentTab = 3;
+        else if (activeImg == imgNotify) currentTab = 4;
+        else if (activeImg == imgProfile) currentTab = 5;
+
+=======
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment).commit();
     }
 

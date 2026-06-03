@@ -9,6 +9,11 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.webkit.MimeTypeMap;
+<<<<<<< HEAD
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
+=======
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -55,6 +60,20 @@ public class UploadDocumentActivity extends AppCompatActivity {
 
         btnClose.setOnClickListener(v -> finish());
 
+<<<<<<< HEAD
+        // Khởi tạo Select Box cho Môn học
+        AutoCompleteTextView etSubject = findViewById(R.id.etSubject);
+        String[] subjects = {"CNTT/IT", "Kinh tế", "Khoa học", "Luật"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_dropdown_item_1line,
+                subjects
+        );
+        etSubject.setAdapter(adapter);
+        etSubject.setText(subjects[0], false);
+
+=======
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
         // 1. Bộ chọn File
         ActivityResultLauncher<Intent> filePickerLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -79,11 +98,25 @@ public class UploadDocumentActivity extends AppCompatActivity {
     private void startUploadFlow() {
         // 1. Kiểm tra đầu vào
         String title = ((EditText)findViewById(R.id.etTitle)).getText().toString().trim();
+<<<<<<< HEAD
+        AutoCompleteTextView etSubject = findViewById(R.id.etSubject);
+        String selectedSubject = etSubject.getText().toString().trim();
+
+=======
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
         if (selectedFileUri == null || title.isEmpty()) {
             Toast.makeText(this, "Vui lòng nhập tiêu đề và chọn file!", Toast.LENGTH_SHORT).show();
             return;
         }
 
+<<<<<<< HEAD
+        if (selectedSubject.isEmpty()) {
+            Toast.makeText(this, "Vui lòng chọn môn học!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+=======
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
         // 2. Lấy USER_ID thật từ máy (Tránh dùng ID dummy làm server từ chối)
         SharedPreferences sharedPref = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE);
         String userId = sharedPref.getString("USER_ID", "");
@@ -101,11 +134,32 @@ public class UploadDocumentActivity extends AppCompatActivity {
         File file = uriToFile(selectedFileUri);
         if (file == null) {
             btnUpload.setEnabled(true);
+<<<<<<< HEAD
+            Toast.makeText(this, "Lỗi: Không đọc được file!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Xác định MIME type an toàn
+        String mimeType = getContentResolver().getType(selectedFileUri);
+        if (mimeType == null) {
+            String extension = MimeTypeMap.getFileExtensionFromUrl(selectedFileUri.toString());
+            if (extension != null && !extension.isEmpty()) {
+                mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension.toLowerCase());
+            }
+        }
+        if (mimeType == null) {
+            mimeType = "application/octet-stream";
+        }
+
+        RequestBody requestFile = RequestBody.create(
+                MediaType.parse(mimeType),
+=======
             return;
         }
 
         RequestBody requestFile = RequestBody.create(
                 MediaType.parse(getContentResolver().getType(selectedFileUri)),
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
                 file
         );
         MultipartBody.Part body = MultipartBody.Part.createFormData("media", file.getName(), requestFile);
@@ -139,12 +193,27 @@ public class UploadDocumentActivity extends AppCompatActivity {
 
     private void createDocumentRecord(String mediaId) {
         String title = ((EditText)findViewById(R.id.etTitle)).getText().toString().trim();
+<<<<<<< HEAD
+        AutoCompleteTextView etSubject = findViewById(R.id.etSubject);
+        String selectedSubject = etSubject.getText().toString().trim();
+
+        // Map "CNTT/IT" sang "IT" để khớp với chip/tab IT của LibraryFragment
+        String subjectValue = selectedSubject;
+        if ("CNTT/IT".equals(selectedSubject)) {
+            subjectValue = "IT";
+        }
+=======
         String subject = ((EditText)findViewById(R.id.etSubject)).getText().toString().trim();
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
 
         Map<String, Object> docData = new HashMap<>();
         docData.put("mediaId", mediaId);
         docData.put("title", title);
+<<<<<<< HEAD
+        docData.put("subject", subjectValue);
+=======
         docData.put("subject", subject);
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
         docData.put("visibility", "public");
 
         Log.d("UPLOAD_FLOW", "Bắt đầu bước 2: Tạo Document...");
@@ -160,6 +229,10 @@ public class UploadDocumentActivity extends AppCompatActivity {
                     finish();
                 } else {
                     Log.e("UPLOAD_FLOW", "Lỗi bước 2: " + response.code());
+<<<<<<< HEAD
+                    Toast.makeText(UploadDocumentActivity.this, "Lỗi tạo tài liệu: " + response.code(), Toast.LENGTH_SHORT).show();
+=======
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
                 }
             }
 
@@ -167,12 +240,43 @@ public class UploadDocumentActivity extends AppCompatActivity {
             public void onFailure(Call call, Throwable t) {
                 btnUpload.setEnabled(true);
                 Log.e("UPLOAD_FLOW", "Thất bại bước 2: " + t.getMessage());
+<<<<<<< HEAD
+                Toast.makeText(UploadDocumentActivity.this, "Thất bại khi lưu tài liệu: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+=======
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
             }
         });
     }
 
     private File uriToFile(Uri uri) {
         try {
+<<<<<<< HEAD
+            // Lấy đuôi file thật từ Uri
+            String extension = null;
+            String mimeType = getContentResolver().getType(uri);
+            if (mimeType != null) {
+                extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType);
+            }
+            if (extension == null) {
+                // Thử lấy extension từ uri path
+                String path = uri.getPath();
+                if (path != null) {
+                    int lastDot = path.lastIndexOf('.');
+                    if (lastDot != -1) {
+                        extension = path.substring(lastDot + 1);
+                    }
+                }
+            }
+            if (extension == null || extension.isEmpty()) {
+                extension = "pdf"; // Mặc định là pdf nếu không nhận diện được
+            }
+
+            // Tạo file tạm CÓ ĐUÔI FILE (Rất quan trọng)
+            File file = new File(getCacheDir(), "upload_file_" + System.currentTimeMillis() + "." + extension);
+
+            InputStream inputStream = getContentResolver().openInputStream(uri);
+            if (inputStream == null) return null;
+=======
             // 1. Lấy đuôi file thật từ Uri (ví dụ: pdf, docx)
             String extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(getContentResolver().getType(uri));
             if (extension == null) extension = "pdf"; // Mặc định là pdf nếu không nhận diện được
@@ -181,6 +285,7 @@ public class UploadDocumentActivity extends AppCompatActivity {
             File file = new File(getCacheDir(), "upload_file_" + System.currentTimeMillis() + "." + extension);
 
             InputStream inputStream = getContentResolver().openInputStream(uri);
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
             FileOutputStream outputStream = new FileOutputStream(file);
             byte[] buffer = new byte[1024];
             int read;
@@ -188,8 +293,16 @@ public class UploadDocumentActivity extends AppCompatActivity {
                 outputStream.write(buffer, 0, read);
             }
             outputStream.flush();
+<<<<<<< HEAD
+            outputStream.close();
+            inputStream.close();
+            return file;
+        } catch (Exception e) {
+            Log.e("UPLOAD_FLOW", "Lỗi chuyển đổi URI sang File: " + e.getMessage());
+=======
             return file; // Bây giờ file gửi lên server sẽ có tên như: upload_file_123.pdf
         } catch (Exception e) {
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
             return null;
         }
     }

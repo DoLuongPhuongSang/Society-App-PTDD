@@ -101,7 +101,11 @@ export const googleLogin = async (req: Request, res: Response) => {
   }
 };
 /**
+<<<<<<< HEAD
+ Dang nhap fb
+=======
 Dang nhap fb
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
  */
 export const facebookLogin = async (
   req: Request,
@@ -137,29 +141,23 @@ export const facebookLogin = async (
       });
     }
 
+
+    // TÌM USER CHỈ BẰNG EMAIL
     let user = await User.findOne({
-      facebookId: fbUser.id,
+      email: fbUser.email.toLowerCase(),
     });
 
-    if (!user) {
-      user = await User.findOne({
-        email: fbUser.email.toLowerCase(),
-      });
-    }
+    // NẾU CHƯA CÓ USER THÌ TẠO MỚI (KHÔNG CÓ facebookId)
 
     if (!user) {
       user = await User.create({
         username: fbUser.name,
         email: fbUser.email.toLowerCase(),
-        facebookId: fbUser.id,
+
         avatar: fbUser.picture?.data?.url,
         isVerified: true,
       });
-    } else {
-      if (!user.facebookId) {
-        user.facebookId = fbUser.id;
-        await user.save();
-      }
+
     }
 
     // GENERATE TOKENS

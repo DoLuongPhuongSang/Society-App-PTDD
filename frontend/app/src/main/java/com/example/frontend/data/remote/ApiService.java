@@ -154,6 +154,10 @@ public interface ApiService {
     @GET("media/me")
     Call<ApiResponse<List<Media>>> getMyMedia(@Query("fileType") String fileType);
 
+<<<<<<< HEAD
+    @Multipart
+=======
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
     @POST("media/upload/document")
     Call<ApiResponse<Media>> uploadSingleFile(
             @Part MultipartBody.Part file,

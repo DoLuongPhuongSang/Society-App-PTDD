@@ -87,8 +87,33 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         if (post.getAuthorId() != null) {
             holder.tvUserName.setText(post.getAuthorId().getUsername());
             Glide.with(context).load(post.getAuthorId().getAvatar()).placeholder(R.drawable.ic_user).into(holder.imgAvatar);
+<<<<<<< HEAD
+            
+            View.OnClickListener goToProfile = v -> {
+                if (post.getAuthorId().getId() != null) {
+                    Intent intent = new Intent(context, com.example.frontend.ui.profile.FriendProfileActivity.class);
+                    intent.putExtra("FRIEND_ID", post.getAuthorId().getId());
+                    intent.putExtra("FRIEND_NAME", post.getAuthorId().getUsername());
+                    intent.putExtra("FRIEND_AVATAR", post.getAuthorId().getAvatar());
+                    context.startActivity(intent);
+                }
+            };
+            holder.imgAvatar.setOnClickListener(goToProfile);
+            holder.tvUserName.setOnClickListener(goToProfile);
         } else {
             holder.tvUserName.setText("Người dùng ẩn danh");
+            holder.imgAvatar.setOnClickListener(null);
+            holder.tvUserName.setOnClickListener(null);
+        }
+
+        if (post.getCreatedAt() != null) {
+            holder.tvTime.setText(formatTime(post.getCreatedAt()));
+        } else {
+            holder.tvTime.setText("Vừa xong");
+=======
+        } else {
+            holder.tvUserName.setText("Người dùng ẩn danh");
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
         }
 
         // ==========================================
@@ -325,8 +350,37 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         }
     }
 
+<<<<<<< HEAD
+    private String formatTime(String dateString) {
+        if (dateString == null || dateString.isEmpty()) return "Vừa xong";
+        try {
+            java.text.SimpleDateFormat format = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault());
+            format.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
+            java.util.Date date = format.parse(dateString);
+            if (date == null) return "Vừa xong";
+
+            long diffMs = System.currentTimeMillis() - date.getTime();
+            long minutes = diffMs / (60 * 1000);
+            long hours = diffMs / (60 * 60 * 1000);
+            long days = hours / 24;
+
+            if (minutes < 1) return "Vừa xong";
+            if (minutes < 60) return minutes + " phút trước";
+            if (hours < 24) return hours + " giờ trước";
+            if (days < 7) return days + " ngày trước";
+            
+            return new java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault()).format(date);
+        } catch (Exception e) {
+            return "Vừa xong";
+        }
+    }
+
+    public static class PostViewHolder extends RecyclerView.ViewHolder {
+        TextView tvUserName, tvContent, tvCommentCount, tvTime;
+=======
     public static class PostViewHolder extends RecyclerView.ViewHolder {
         TextView tvUserName, tvContent, tvCommentCount;
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
         ImageView imgAvatar;
         View btnComment;
 
@@ -345,6 +399,10 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         public PostViewHolder(@NonNull View itemView) {
             super(itemView);
             tvUserName = itemView.findViewById(R.id.tvAuthorName);
+<<<<<<< HEAD
+            tvTime = itemView.findViewById(R.id.tvTime);
+=======
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
             tvContent = itemView.findViewById(R.id.tvContent);
             imgAvatar = itemView.findViewById(R.id.imgAvatar);
 

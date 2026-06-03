@@ -53,6 +53,11 @@ export const createPost = async (req: AuthRequest, res: Response) => {
             await Media.insertMany(mediaDocument);
         }
 
+<<<<<<< HEAD
+        // Nếu client muốn thêm 1 reaction mặc định (ví dụ: tác giả bấm cảm xúc khi đăng),
+        // ta tạo 1 document Reaction tương ứng.
+=======
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
         if (initialReaction) {
             try {
                 const react = new Reaction({
@@ -83,12 +88,19 @@ export const createPost = async (req: AuthRequest, res: Response) => {
 };
 
 // =====================================
+<<<<<<< HEAD
+// API LẤY BẢNG TIN (ĐÃ CẬP NHẬT TRẢ VỀ MẢNG ẢNH)
+=======
 // API LẤY BÀI VIẾT TRANG HOME (FEED) - ĐÃ SỬA GỘP LOGIC
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
 // =====================================
 export const getFeed = async (req: AuthRequest, res: Response) => {
     try {
         const currentUserId = req.user?.id;
 
+<<<<<<< HEAD
+        // Lấy danh sách bạn bè đã chấp nhận
+=======
         // 1. Lấy danh sách ID các nhóm mà User này đã tham gia làm thành viên
         // Tìm cả trường hợp 'member.userId' và 'members.userId' để tránh lệch data cũ
         const userGroups = await Group.find({
@@ -101,6 +113,7 @@ export const getFeed = async (req: AuthRequest, res: Response) => {
         const groupIds = userGroups.map(g => g._id);
 
         // 2. Lấy danh sách ID bạn bè đã kết bạn thành công
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
         const friendships = await Friend.find({
             $or: [
                 { requester: currentUserId, status: "accepted" },
@@ -111,6 +124,11 @@ export const getFeed = async (req: AuthRequest, res: Response) => {
         const friendIds = friendships.map(f =>
             f.requester.toString() === currentUserId ? f.recipient : f.requester
         );
+<<<<<<< HEAD
+        const allowedIds = [new mongoose.Types.ObjectId(currentUserId!), ...friendIds];
+
+        const posts = await Post.find({ authorId: { $in: allowedIds } })
+=======
 
         // Gom ID của mình và bạn bè lại
         const allowedAuthorIds = [new mongoose.Types.ObjectId(currentUserId!), ...friendIds];
@@ -126,16 +144,26 @@ export const getFeed = async (req: AuthRequest, res: Response) => {
                 { authorId: { $in: allowedAuthorIds }, groupId: null }
             ]
         })
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
             .sort({ createdAt: -1 })
             .populate('authorId', 'username avatar')
             .lean();
 
+<<<<<<< HEAD
+        const postsWithDetails = await Promise.all(posts.map(async (post) => {
+            const postIdObj = new mongoose.Types.ObjectId(post._id.toString());
+
+            // ĐÃ SỬA: Lấy TẤT CẢ ảnh thuộc bài viết này thay vì 1 ảnh
+            const mediaList = await Media.find({ targetId: post._id, fileType: 'image' });
+            const imageUrls = mediaList.map(media => media.url); // Trích xuất mảng các đường link
+=======
         // 4. Map nạp thêm dữ liệu tương tác chi tiết (Ảnh, Reaction, Comment)
         const postsWithDetails = await Promise.all(posts.map(async (post) => {
             const postIdObj = new mongoose.Types.ObjectId(post._id.toString());
 
             const mediaList = await Media.find({ targetId: post._id, fileType: 'image' });
             const imageUrls = mediaList.map(media => media.url);
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
 
             const commentCount = await Comment.countDocuments({ postId: post._id });
             const countReaction = await Reaction.countDocuments({ targetId: postIdObj });
@@ -158,7 +186,11 @@ export const getFeed = async (req: AuthRequest, res: Response) => {
 
             return {
                 ...post,
+<<<<<<< HEAD
+                images: imageUrls, // ĐÃ SỬA: Trả về mảng "images"
+=======
                 images: imageUrls,
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
                 countComment: commentCount,
                 countReaction: countReaction,
                 myReaction: myReaction,
@@ -174,7 +206,11 @@ export const getFeed = async (req: AuthRequest, res: Response) => {
 };
 
 // =====================================
+<<<<<<< HEAD
+// API XÓA BÀI VIẾT (GIỮ NGUYÊN BẢN GỐC)
+=======
 // API XÓA BÀI VIẾT
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
 // =====================================
 export const deletePost = async (req: AuthRequest, res: Response) => {
     try {
@@ -213,6 +249,10 @@ export const deletePost = async (req: AuthRequest, res: Response) => {
     }
 };
 
+<<<<<<< HEAD
+
+=======
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
 export const toggleSavePost = async (req: AuthRequest, res: Response): Promise<any> => {
     try {
         const userId = req.user?.id;
@@ -224,9 +264,17 @@ export const toggleSavePost = async (req: AuthRequest, res: Response): Promise<a
         const isSaved = user.savedPosts.includes(postId as any);
 
         if (isSaved) {
+<<<<<<< HEAD
+            // Nếu đã lưu -> Rút nó ra khỏi mảng (Bỏ lưu)
             await User.findByIdAndUpdate(userId, { $pull: { savedPosts: postId } });
             return res.status(200).json({ message: "Đã bỏ lưu bài viết" });
         } else {
+            // Nếu chưa lưu -> Nhét nó vào mảng (Lưu)
+=======
+            await User.findByIdAndUpdate(userId, { $pull: { savedPosts: postId } });
+            return res.status(200).json({ message: "Đã bỏ lưu bài viết" });
+        } else {
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
             await User.findByIdAndUpdate(userId, { $addToSet: { savedPosts: postId } });
             return res.status(200).json({ message: "Đã lưu bài viết thành công" });
         }
@@ -236,6 +284,10 @@ export const toggleSavePost = async (req: AuthRequest, res: Response): Promise<a
     }
 };
 
+<<<<<<< HEAD
+// 2. Logic Lấy danh sách bài đã lưu của tôi
+=======
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
 export const getSavedPosts = async (req: AuthRequest, res: Response): Promise<any> => {
     try {
         const userId = req.user?.id;
@@ -244,11 +296,21 @@ export const getSavedPosts = async (req: AuthRequest, res: Response): Promise<an
         const user = await User.findById(userId);
         if (!user) return res.status(404).json({ message: "Không tìm thấy User" });
 
+<<<<<<< HEAD
+        // 1. Tìm bài viết + Nhúng Tác giả + Nhúng luôn cả Ảnh
+        const posts = await Post.find({ _id: { $in: user.savedPosts } })
+            .populate('authorId', 'username avatar')
+            .populate('mediaFiles') // Đi tìm ảnh của bài viết
+            .sort({ createdAt: -1 });
+
+
+=======
         const posts = await Post.find({ _id: { $in: user.savedPosts } })
             .populate('authorId', 'username avatar')
             .populate('mediaFiles')
             .sort({ createdAt: -1 });
 
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
         const formattedPosts = posts.map((post: any) => {
             const postObj = post.toJSON({ virtuals: true });
             if (postObj.mediaFiles && postObj.mediaFiles.length > 0) {
@@ -260,13 +322,20 @@ export const getSavedPosts = async (req: AuthRequest, res: Response): Promise<an
             return postObj;
         });
 
+<<<<<<< HEAD
+        // Gửi về Frontend
+=======
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
         return res.status(200).json({ data: formattedPosts });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: "Lỗi Server" });
     }
 };
+<<<<<<< HEAD
+=======
 
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
 // =====================================
 // API LẤY BÀI VIẾT CỦA TÔI
 // =====================================
@@ -344,4 +413,8 @@ export const getPostsByUser = async (req: AuthRequest, res: Response) => {
         console.error("Lỗi getPostsByUser", error);
         res.status(500).json({ success: false, message: "Lỗi server" });
     }
+<<<<<<< HEAD
 };
+=======
+};
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b

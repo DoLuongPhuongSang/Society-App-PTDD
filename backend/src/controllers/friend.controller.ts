@@ -253,9 +253,11 @@ export const getPendingRequests = async (
     const userId = req.user?.id;
 
     if (!userId) {
-  res.status(401).json({ success: false, message: "Không tìm thấy thông tin xác thực." });
-  return;
-}
+
+      res.status(401).json({ success: false, message: "Không tìm thấy thông tin xác thực." });
+      return;
+    }
+
 
     // 1. Lấy danh sách lời mời
     const requests = await Friend.find({
@@ -268,6 +270,7 @@ export const getPendingRequests = async (
       $or: [{ requester: userId }, { recipient: userId }],
       status: "accepted",
     });
+    
     const myFriendIds = myFriends.map((f) =>
       f.requester.toString() === userId ? f.recipient.toString() : f.requester.toString()
     );
@@ -275,6 +278,11 @@ export const getPendingRequests = async (
     // 3. Đếm bạn chung cho từng lời mời
     const requestsWithMutual = await Promise.all(
       requests.map(async (reqItem: any) => {
+
+        // FIX: Nếu tài khoản người gửi đã bị xóa, reqItem.requester sẽ null -> Bỏ qua
+        if (!reqItem.requester) return null;
+
+
         const otherUserId = reqItem.requester._id.toString();
 
         // Lấy bạn bè của người kia
@@ -282,6 +290,9 @@ export const getPendingRequests = async (
           $or: [{ requester: otherUserId }, { recipient: otherUserId }],
           status: "accepted",
         });
+
+        
+
         const theirFriendIds = theirFriends.map((f) =>
           f.requester.toString() === otherUserId ? f.recipient.toString() : f.requester.toString()
         );
@@ -300,55 +311,17 @@ export const getPendingRequests = async (
       })
     );
 
+
+    // Lọc bỏ các giá trị null (những lời mời từ user đã bị xóa)
+    const validRequests = requestsWithMutual.filter(Boolean);
+
     res.status(200).json({
       success: true,
-      data: requestsWithMutual,
+      data: validRequests,
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Lỗi server", error });
-  }
-};
+    console.error("Lỗi getPendingRequests:", error); // Thêm log để dễ debug backend
 
-export const checkFriendStatus = async (
-  req: AuthRequest,
-  res: Response
-): Promise<void> => {
-  try {
-    const me = req.user?.id;
-    const otherUser = req.params.id;
-
-    if (me === otherUser) {
-      res.status(200).json({ success: true, status: "self" });
-      return;
-    }
-
-    const friendship = await Friend.findOne({
-      $or: [
-        { requester: me, recipient: otherUser },
-        { requester: otherUser, recipient: me },
-      ],
-    });
-
-    if (!friendship) {
-      res.status(200).json({ success: true, status: "none" }); // Chưa kết bạn -> Hiện nút "Thêm bạn bè"
-      return;
-    }
-
-    if (friendship.status === "accepted") {
-      res.status(200).json({ success: true, status: "friends" }); // Đã là bạn -> Hiện nút "Bạn bè / Hủy kết bạn"
-      return;
-    }
-
-    if (friendship.status === "pending") {
-      if (friendship.requester.toString() === me) {
-        res.status(200).json({ success: true, status: "request_sent" }); // Mình gửi -> Hiện nút "Đã gửi lời mời / Hủy"
-      } else {
-        res.status(200).json({ success: true, status: "request_received" }); // Họ gửi -> Hiện nút "Chấp nhận / Từ chối"
-      }
-      return;
-    }
-
-  } catch (error) {
     res.status(500).json({ success: false, message: "Lỗi server", error });
   }
 };

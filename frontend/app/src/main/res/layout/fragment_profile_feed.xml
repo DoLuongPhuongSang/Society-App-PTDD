@@ -6,6 +6,14 @@
     android:orientation="vertical"
     android:background="#ffffff">
 
+<<<<<<< HEAD
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvPosts"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="80dp" />
+=======
     <!-- Create Post -->
     <LinearLayout
         android:id="@+id/btnOpenCreatePost"
@@ -38,11 +46,16 @@
         android:id="@+id/rvPosts"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
 
     <TextView
         android:id="@+id/tvEmptyPosts"
         android:layout_width="match_parent"
+<<<<<<< HEAD
+        android:layout_height="match_parent"
+=======
         android:layout_height="wrap_content"
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
         android:text="Chưa có bài viết nào"
         android:textColor="#9CA3AF"
         android:textSize="14sp"
