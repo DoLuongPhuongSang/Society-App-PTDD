@@ -20,7 +20,7 @@
 <!--                android:id="@+id/nav_calendar"-->
 <!--                android:icon="@drawable/ic_calendar"-->
 <!--                android:title="Lịch" />-->
-<!--            <item-->
+            <item
                 android:id="@+id/nav_group"
                 android:icon="@drawable/ic_group"
                 android:title="Nhóm" />

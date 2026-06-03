@@ -40,6 +40,7 @@ object ChatSocketManager {
                 reconnectionDelayMax = 5000
                 reconnectionAttempts = 5
                 forceNew = true
+                transports = arrayOf("websocket")
                 query = "token=$token"
                 auth = mapOf("token" to token)
                 // ✅ Set header đúng chỗ — trong Options trước khi tạo socket

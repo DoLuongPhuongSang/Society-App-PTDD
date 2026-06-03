@@ -87,8 +87,22 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         if (post.getAuthorId() != null) {
             holder.tvUserName.setText(post.getAuthorId().getUsername());
             Glide.with(context).load(post.getAuthorId().getAvatar()).placeholder(R.drawable.ic_user).into(holder.imgAvatar);
+            
+            View.OnClickListener goToProfile = v -> {
+                if (post.getAuthorId().getId() != null) {
+                    Intent intent = new Intent(context, com.example.frontend.ui.profile.FriendProfileActivity.class);
+                    intent.putExtra("FRIEND_ID", post.getAuthorId().getId());
+                    intent.putExtra("FRIEND_NAME", post.getAuthorId().getUsername());
+                    intent.putExtra("FRIEND_AVATAR", post.getAuthorId().getAvatar());
+                    context.startActivity(intent);
+                }
+            };
+            holder.imgAvatar.setOnClickListener(goToProfile);
+            holder.tvUserName.setOnClickListener(goToProfile);
         } else {
             holder.tvUserName.setText("Người dùng ẩn danh");
+            holder.imgAvatar.setOnClickListener(null);
+            holder.tvUserName.setOnClickListener(null);
         }
 
         if (post.getCreatedAt() != null) {
