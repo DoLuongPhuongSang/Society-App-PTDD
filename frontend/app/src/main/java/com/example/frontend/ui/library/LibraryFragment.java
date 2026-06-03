@@ -40,27 +40,22 @@ public class LibraryFragment extends Fragment {
     private EditText etSearch;
     private ProgressBar progressBar;
     private TextView tvSortLabel;
-<<<<<<< HEAD
+
     private String currentSubject = ""; // Lưu tab đang chọn
-=======
->>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
+
 
     private final ActivityResultLauncher<Intent> uploadLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getResultCode() == Activity.RESULT_OK) {
-<<<<<<< HEAD
+
                     // Nếu upload thành công, tải lại danh sách theo tab hiện tại
                     if (currentSubject.isEmpty()) {
                         viewModel.loadDocuments("");
                     } else {
                         viewModel.loadDocumentsBySubject(currentSubject);
                     }
-=======
-                    // Nếu upload thành công, tải lại danh sách ngay lập tức
-                    viewModel.loadDocuments("");
 
->>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
                 }
             }
     );
@@ -83,11 +78,10 @@ public class LibraryFragment extends Fragment {
         for (int i = 0; i < chips.length; i++) {
             final int index = i;
             chips[i].setOnClickListener(v -> {
-<<<<<<< HEAD
+
                 currentSubject = subjectNames[index]; // Lưu lại tab hiện tại
                 
-=======
->>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
+
                 // 1. Đổi màu tất cả về xám nhạt (Chưa chọn)
                 for (MaterialCardView chip : chips) {
                     chip.setCardBackgroundColor(android.graphics.Color.parseColor("#E8EFE0"));
@@ -104,15 +98,13 @@ public class LibraryFragment extends Fragment {
                 activeTv.setTypeface(null, android.graphics.Typeface.BOLD);
 
                 // 3. Gọi API lấy dữ liệu
-<<<<<<< HEAD
+
                 if (currentSubject.isEmpty()) {
                     viewModel.loadDocuments("");
                 } else {
                     viewModel.loadDocumentsBySubject(currentSubject);
                 }
-=======
-                viewModel.loadDocumentsBySubject(subjectNames[index]);
->>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
+
             });
         }
 

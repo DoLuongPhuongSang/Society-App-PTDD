@@ -71,14 +71,11 @@ const documentStorage = new CloudinaryStorage({
       "xls",
       "xlsx",
       "txt",
-<<<<<<< HEAD
       "jpg",
       "jpeg",
       "png",
       "webp",
       "gif"
-=======
->>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
     ],
     public_id: `doc_${Date.now()}_${file.originalname.split(".")[0]}`,
   }),
@@ -144,7 +141,6 @@ const documentFilter = (
     "application/vnd.ms-excel",
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     "text/plain",
-<<<<<<< HEAD
     "image/jpeg",
     "image/png",
     "image/webp",
@@ -157,19 +153,11 @@ const documentFilter = (
   const ALLOWED_EXTS = [".pdf", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".jpg", ".jpeg", ".png", ".webp", ".gif", ".heic", ".heif"];
 
   if (ALLOWED.includes(file.mimetype) || ALLOWED_EXTS.includes(ext)) {
-=======
-  ];
-  if (ALLOWED.includes(file.mimetype)) {
->>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
     cb(null, true);
   } else {
     cb(
       new Error(
-<<<<<<< HEAD
         "Loại file không được hỗ trợ. Vui lòng upload pdf, docx, pptx, xlsx, txt hoặc ảnh.",
-=======
-        "Loại file không được hỗ trợ. Vui lòng upload pdf, docx, pptx, xlsx hoặc txt.",
->>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
       ),
     );
   }

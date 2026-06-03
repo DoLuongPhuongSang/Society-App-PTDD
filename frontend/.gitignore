@@ -7,11 +7,11 @@
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
-<<<<<<< HEAD
+
 .idea/
 front
-=======
->>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
+
+
 .DS_Store
 /build
 /captures
