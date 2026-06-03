@@ -7,6 +7,7 @@ import Group from '../models/group.model';
 import Comment from '../models/comment.model'; 
 import Reaction from '../models/reaction.model'; 
 import User from '../models/user.model';
+import Friend from '../models/friend.model';
 
 // =====================================
 // API ĐĂNG BÀI
@@ -27,17 +28,17 @@ export const createPost = async (req: AuthRequest, res: Response) => {
                 return res.status(403).json({ success: false, message: "Bạn không phải thành viên của nhóm này" });
             }
         }
-        
+
         const newPost = new Post({
             authorId: authorId,
             groupId: groupId || null,
             content: content,
             privacy: privacy || "Public",
         });
-        
+
         const savePost = await newPost.save();
-        
-        if (req.files && Array.isArray(req.files) && req.files.length > 0) {   
+
+        if (req.files && Array.isArray(req.files) && req.files.length > 0) {
             const mediaDocument = req.files.map((file: any) => {
                 const isVideo = file.mimetype.includes('video');
                 return {
@@ -52,11 +53,11 @@ export const createPost = async (req: AuthRequest, res: Response) => {
         }
 
         res.status(201).json({
-            success: true, 
+            success: true,
             message: "Đăng bài thành công",
             PostId: savePost._id,
         });
-        
+
     } catch(error) {
         console.error("Lỗi đăng bài", error);
         res.status(500).json({
@@ -72,7 +73,24 @@ export const createPost = async (req: AuthRequest, res: Response) => {
 export const getFeed = async (req: AuthRequest, res: Response) => {
     try {
         const currentUserId = req.user?.id;
-        const posts = await Post.find().sort({ createdAt: -1 }).populate('authorId', 'username avatar').lean(); 
+
+        // Lấy danh sách bạn bè đã chấp nhận
+        const friendships = await Friend.find({
+            $or: [
+                { requester: currentUserId, status: "accepted" },
+                { recipient: currentUserId, status: "accepted" },
+            ],
+        }).lean();
+
+        const friendIds = friendships.map(f =>
+            f.requester.toString() === currentUserId ? f.recipient : f.requester
+        );
+        const allowedIds = [new mongoose.Types.ObjectId(currentUserId!), ...friendIds];
+
+        const posts = await Post.find({ authorId: { $in: allowedIds } })
+            .sort({ createdAt: -1 })
+            .populate('authorId', 'username avatar')
+            .lean();
 
         const postsWithDetails = await Promise.all(posts.map(async (post) => {
             const postIdObj = new mongoose.Types.ObjectId(post._id.toString());
@@ -122,19 +140,19 @@ export const getFeed = async (req: AuthRequest, res: Response) => {
 // =====================================
 export const deletePost = async (req: AuthRequest, res: Response) => {
     try {
-        const postId = req.params.id; 
+        const postId = req.params.id;
         const userId = req.user?.id;
 
         const post = await Post.findById(postId);
-        
+
         if (!post) {
-            return res.status(404).json({ success: false, message: "Không tìm thấy bài viết" }); 
+            return res.status(404).json({ success: false, message: "Không tìm thấy bài viết" });
         }
-        
+
         let hasPermission = false;
         if (post.authorId.toString() === userId) {
-            hasPermission = true; 
-        }       
+            hasPermission = true;
+        }
         if (!hasPermission && post.groupId) {
             const group = await Group.findById(post.groupId);
             if (group && group.creatorId.toString() === userId) {
@@ -160,7 +178,7 @@ export const deletePost = async (req: AuthRequest, res: Response) => {
 
 export const toggleSavePost = async (req: AuthRequest, res: Response): Promise<any> => {
     try {
-        const userId = req.user?.id; 
+        const userId = req.user?.id;
         const postId = req.params.id;
 
         const user = await User.findById(userId);
@@ -192,17 +210,17 @@ export const getSavedPosts = async (req: AuthRequest, res: Response): Promise<an
         const user = await User.findById(userId);
         if (!user) return res.status(404).json({ message: "Không tìm thấy User" });
 
-        // 1. Tìm bài viết + Nhúng Tác giả + Nhúng luôn cả Ảnh 
+        // 1. Tìm bài viết + Nhúng Tác giả + Nhúng luôn cả Ảnh
         const posts = await Post.find({ _id: { $in: user.savedPosts } })
-            .populate('authorId', 'username avatar') 
+            .populate('authorId', 'username avatar')
             .populate('mediaFiles') // Đi tìm ảnh của bài viết
             .sort({ createdAt: -1 });
 
-       
+
         const formattedPosts = posts.map((post: any) => {
-            const postObj = post.toJSON({ virtuals: true }); 
+            const postObj = post.toJSON({ virtuals: true });
             if (postObj.mediaFiles && postObj.mediaFiles.length > 0) {
-                postObj.images = postObj.mediaFiles.map((media: any) => media.url); 
+                postObj.images = postObj.mediaFiles.map((media: any) => media.url);
             } else {
                 postObj.images = [];
             }
@@ -215,5 +233,83 @@ export const getSavedPosts = async (req: AuthRequest, res: Response): Promise<an
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: "Lỗi Server" });
+    }
+};
+// =====================================
+// API LẤY BÀI VIẾT CỦA TÔI
+// =====================================
+export const getMyPosts = async (req: AuthRequest, res: Response) => {
+    try {
+        const userId = req.user?.id;
+        const posts = await Post.find({ authorId: userId })
+            .sort({ createdAt: -1 })
+            .populate('authorId', 'username avatar')
+            .lean();
+
+        const postsWithDetails = await Promise.all(posts.map(async (post) => {
+            const mediaList = await Media.find({ targetId: post._id, fileType: 'image' });
+            const imageUrls = mediaList.map(m => m.url);
+            const countComment = await Comment.countDocuments({ postId: post._id });
+            const countReaction = await Reaction.countDocuments({ targetId: post._id });
+            const myReactDoc = await Reaction.findOne({ targetId: post._id, userId });
+            const topReactDocs = await Reaction.aggregate([
+                { $match: { targetId: new mongoose.Types.ObjectId(post._id.toString()) } },
+                { $group: { _id: "$type", count: { $sum: 1 } } },
+                { $sort: { count: -1 } }, { $limit: 2 }
+            ]);
+            return {
+                ...post,
+                images: imageUrls,
+                countComment,
+                countReaction,
+                myReaction: myReactDoc?.type ?? null,
+                topReactions: topReactDocs.map(d => d._id),
+            };
+        }));
+
+        res.status(200).json({ success: true, data: postsWithDetails });
+    } catch (error) {
+        console.error("Lỗi getMyPosts", error);
+        res.status(500).json({ success: false, message: "Lỗi server" });
+    }
+};
+
+// =====================================
+// API LẤY BÀI VIẾT CỦA USER KHÁC
+// =====================================
+export const getPostsByUser = async (req: AuthRequest, res: Response) => {
+    try {
+        const { userId } = req.params;
+        const currentUserId = req.user?.id;
+        const posts = await Post.find({ authorId: userId, privacy: { $in: ["Public", "Friends"] } })
+            .sort({ createdAt: -1 })
+            .populate('authorId', 'username avatar')
+            .lean();
+
+        const postsWithDetails = await Promise.all(posts.map(async (post) => {
+            const mediaList = await Media.find({ targetId: post._id, fileType: 'image' });
+            const imageUrls = mediaList.map(m => m.url);
+            const countComment = await Comment.countDocuments({ postId: post._id });
+            const countReaction = await Reaction.countDocuments({ targetId: post._id });
+            const myReactDoc = await Reaction.findOne({ targetId: post._id, userId: currentUserId });
+            const topReactDocs = await Reaction.aggregate([
+                { $match: { targetId: new mongoose.Types.ObjectId(post._id.toString()) } },
+                { $group: { _id: "$type", count: { $sum: 1 } } },
+                { $sort: { count: -1 } }, { $limit: 2 }
+            ]);
+            return {
+                ...post,
+                images: imageUrls,
+                countComment,
+                countReaction,
+                myReaction: myReactDoc?.type ?? null,
+                topReactions: topReactDocs.map(d => d._id),
+            };
+        }));
+
+        res.status(200).json({ success: true, data: postsWithDetails });
+    } catch (error) {
+        console.error("Lỗi getPostsByUser", error);
+        res.status(500).json({ success: false, message: "Lỗi server" });
     }
 };

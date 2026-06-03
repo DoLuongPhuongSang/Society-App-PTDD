@@ -20,15 +20,22 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.frontend.R;
-import com.example.frontend.data.model.User;
-import com.example.frontend.data.repository.UserRepository;
-import com.example.frontend.utils.Result;
 import java.util.ArrayList;
 
+import com.example.frontend.data.model.ApiResponse;
+import com.example.frontend.data.model.Post;
+import com.example.frontend.data.model.StoryGroup;
+import com.example.frontend.data.remote.ApiClient;
+import com.example.frontend.data.remote.ApiService;
+import java.util.List;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class FeedFragment extends Fragment {
-    private UserRepository userRepository;
     private FeedViewModel viewModel;
     private PostAdapter adapter;
+    private StoryAdapter storyAdapter;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -60,9 +67,16 @@ public class FeedFragment extends Fragment {
                     .load(myAvatarUrl)
                     .placeholder(R.drawable.ic_user)
                     .into(imgMyAvatarInFeed);
-        } else {
-            loadProfileFallback(imgMyAvatarInFeed, tvCreatePostHint);
         }
+
+        // =======================================================
+        // STORY STRIP
+        // =======================================================
+        RecyclerView rvStories = view.findViewById(R.id.rvStories);
+        rvStories.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        storyAdapter = new StoryAdapter(getContext());
+        rvStories.setAdapter(storyAdapter);
+        loadStories();
 
         // =======================================================
         // 1. Kết nối ViewModel
@@ -115,7 +129,14 @@ public class FeedFragment extends Fragment {
         // =======================================================
         viewModel.getPosts().observe(getViewLifecycleOwner(), list -> {
             if (list != null) {
-                adapter.updateData(list);
+                // Filter bài viết: chỉ hiện bài đăng ở home (groupId == null), không hiện bài đăng trong nhóm
+                List<Post> homePostsOnly = new ArrayList<>();
+                for (Post post : list) {
+                    if (post.getGroupId() == null || post.getGroupId().isEmpty()) {
+                        homePostsOnly.add(post);
+                    }
+                }
+                adapter.updateData(homePostsOnly);
             } else {
                 Toast.makeText(getContext(), "Không có bài viết nào hoặc lỗi tải tin", Toast.LENGTH_SHORT).show();
             }
@@ -143,51 +164,26 @@ public class FeedFragment extends Fragment {
         return view;
     }
 
-    private void loadProfileFallback(ImageView avatarView, TextView hintView) {
-        if (userRepository == null) {
-            userRepository = new UserRepository(requireContext());
-        }
-
-        userRepository.getProfile().observe(getViewLifecycleOwner(), result -> {
-            if (result.status == Result.Status.SUCCESS && result.data != null) {
-                User user = result.data;
-                String username = user.getUsername();
-                String avatar = user.getAvatar();
-
-                SharedPreferences prefs = requireActivity().getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = prefs.edit();
-
-                if (username != null && !username.isEmpty()) {
-                    editor.putString("USERNAME", username);
-                    if (hintView != null) {
-                        String shortName = username;
-                        if (username.contains(" ")) {
-                            shortName = username.substring(username.lastIndexOf(" ") + 1);
-                        }
-                        hintView.setText(shortName + " ơi, bạn muốn chia sẻ kiến thức gì?");
-                    }
+    private void loadStories() {
+        ApiService api = ApiClient.getApiService(getContext());
+        api.getFeedStories().enqueue(new Callback<ApiResponse<List<StoryGroup>>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<List<StoryGroup>>> call,
+                                   Response<ApiResponse<List<StoryGroup>>> response) {
+                if (!isAdded()) return;
+                if (response.isSuccessful() && response.body() != null
+                        && response.body().isSuccess()) {
+                    storyAdapter.submit(response.body().getData());
                 }
-
-                if (avatar != null && !avatar.isEmpty()) {
-                    editor.putString("USER_AVATAR", avatar);
-                    if (avatarView != null) {
-                        Glide.with(this)
-                                .load(avatar)
-                                .placeholder(R.drawable.ic_user)
-                                .into(avatarView);
-                    }
-                }
-
-                editor.apply();
             }
+            @Override public void onFailure(Call<ApiResponse<List<StoryGroup>>> call, Throwable t) {}
         });
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        if (viewModel != null) {
-            viewModel.loadPosts(); // Load lại data mới nhất khi quay lại màn hình
-        }
+        if (viewModel != null) viewModel.loadPosts();
+        loadStories();
     }
 }

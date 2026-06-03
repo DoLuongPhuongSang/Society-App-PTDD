@@ -16,6 +16,8 @@ import com.example.frontend.data.model.GroupMember;
 import com.example.frontend.data.model.GroupPost;
 import com.example.frontend.data.model.LiveModel;
 import com.example.frontend.data.model.LoginResponse;
+import com.example.frontend.data.model.Story;
+import com.example.frontend.data.model.StoryGroup;
 import com.example.frontend.data.model.NotificationListResponse;
 import com.example.frontend.data.model.Notification;
 import com.example.frontend.data.model.PagedResponse;
@@ -93,6 +95,22 @@ public interface ApiService {
     @DELETE("friends/remove/{id}")
     Call<ApiResponse<Object>> removeFriend(@Path("id") String userId);
 
+    // ====== STORIES ======
+    @GET("stories")
+    Call<ApiResponse<List<StoryGroup>>> getFeedStories();
+
+    @Multipart
+    @POST("stories")
+    Call<ApiResponse<Story>> createStory(
+            @Part MultipartBody.Part file,
+            @Part("caption") RequestBody caption);
+
+    @GET("stories/{storyId}")
+    Call<ApiResponse<Story>> viewStory(@Path("storyId") String storyId);
+
+    @DELETE("stories/{storyId}")
+    Call<ApiResponse<Object>> deleteStory(@Path("storyId") String storyId);
+
     // ====== NOTIFICATIONS ======
     @GET("notifications")
     Call<NotificationListResponse> getNotifications(@Query("page") int page, @Query("limit") int limit);
@@ -133,7 +151,9 @@ public interface ApiService {
             @Query("sortBy") String sortBy
     );
 
-    @Multipart
+    @GET("media/me")
+    Call<ApiResponse<List<Media>>> getMyMedia(@Query("fileType") String fileType);
+
     @POST("media/upload/document")
     Call<ApiResponse<Media>> uploadSingleFile(
             @Part MultipartBody.Part file,
@@ -176,6 +196,10 @@ public interface ApiService {
     Call<ApiResponse<Message>> sendMessage(@Body Map<String, String> body);
 
     // ====== POSTS ======
+
+    @GET("posts/user/{userId}")
+    Call<ApiResponse<List<Post>>> getPostsByUser(@Path("userId") String userId);
+
     @GET("posts/feed")
     Call<ApiResponse<List<Post>>> getAllPosts();
 

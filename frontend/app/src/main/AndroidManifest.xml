@@ -137,6 +137,9 @@
         <activity
             android:name=".ui.search.SearchActivity"
             android:exported="false" />
+        <activity android:name=".ui.profile.FriendProfileActivity"/>
+        <activity android:name=".ui.story.CreateStoryActivity"/>
+        <activity android:name=".ui.story.StoryViewActivity"/>
     </application>
 
 </manifest>

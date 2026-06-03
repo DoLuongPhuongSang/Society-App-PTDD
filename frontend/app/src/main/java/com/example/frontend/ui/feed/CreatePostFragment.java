@@ -123,7 +123,7 @@ public class CreatePostFragment extends Fragment {
         viewModel = new ViewModelProvider(this).get(CreatePostViewModel.class);
         observeViewModel();
 
-        btnBack.setOnClickListener(v -> requireActivity().finish());
+        btnBack.setOnClickListener(v -> getParentFragmentManager().popBackStack());
 
         // Gọi hàm chọn nhiều ảnh (Hỗ trợ GetMultipleContents)
         btnPickImage.setOnClickListener(v -> {
@@ -161,8 +161,8 @@ public class CreatePostFragment extends Fragment {
         viewModel.getIsSuccess().observe(getViewLifecycleOwner(), isSuccess -> {
             if (Boolean.TRUE.equals(isSuccess)) {
                 Toast.makeText(getContext(), "Đăng bài thành công!", Toast.LENGTH_SHORT).show();
-                requireActivity().setResult(android.app.Activity.RESULT_OK);
-                requireActivity().finish();
+                // Pop fragment khỏi back stack để quay lại FeedFragment
+                getParentFragmentManager().popBackStack();
             }
         });
 
