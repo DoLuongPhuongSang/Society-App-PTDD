@@ -8,7 +8,10 @@ import {
   getFriends,
   getPendingRequests,
   getFriendSuggestions,
+
   // checkFriendStatus,
+
+
 } from "../controllers/friend.controller";
 
 
@@ -23,7 +26,9 @@ router.get("/pending", getPendingRequests); // Lấy danh sách lời mời tớ
 router.get("/suggestions", getFriendSuggestions); //Lấy danh sách gợi ý kết bạn
 
 // Các route action với ID (ID của user kia)
+
 // router.get("/status/:id", checkFriendStatus); // Kiểm tra trạng thái bạn bè
+
 router.post("/request/:id", sendFriendRequest); // Gửi lời mời tới id
 router.put("/accept/:id", acceptFriendRequest); // Chấp nhận lời mời từ id
 router.delete("/decline/:id", declineFriendRequest); // Từ chối lời mời từ id

@@ -87,6 +87,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         if (post.getAuthorId() != null) {
             holder.tvUserName.setText(post.getAuthorId().getUsername());
             Glide.with(context).load(post.getAuthorId().getAvatar()).placeholder(R.drawable.ic_user).into(holder.imgAvatar);
+<<<<<<< HEAD
             
             View.OnClickListener goToProfile = v -> {
                 if (post.getAuthorId().getId() != null) {
@@ -109,6 +110,10 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             holder.tvTime.setText(formatTime(post.getCreatedAt()));
         } else {
             holder.tvTime.setText("Vừa xong");
+=======
+        } else {
+            holder.tvUserName.setText("Người dùng ẩn danh");
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
         }
 
         // ==========================================
@@ -345,6 +350,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         }
     }
 
+<<<<<<< HEAD
     private String formatTime(String dateString) {
         if (dateString == null || dateString.isEmpty()) return "Vừa xong";
         try {
@@ -371,6 +377,10 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
     public static class PostViewHolder extends RecyclerView.ViewHolder {
         TextView tvUserName, tvContent, tvCommentCount, tvTime;
+=======
+    public static class PostViewHolder extends RecyclerView.ViewHolder {
+        TextView tvUserName, tvContent, tvCommentCount;
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
         ImageView imgAvatar;
         View btnComment;
 
@@ -389,7 +399,10 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         public PostViewHolder(@NonNull View itemView) {
             super(itemView);
             tvUserName = itemView.findViewById(R.id.tvAuthorName);
+<<<<<<< HEAD
             tvTime = itemView.findViewById(R.id.tvTime);
+=======
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
             tvContent = itemView.findViewById(R.id.tvContent);
             imgAvatar = itemView.findViewById(R.id.imgAvatar);
 

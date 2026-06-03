@@ -1,10 +1,16 @@
+<<<<<<< HEAD
 import mongoose from "mongoose";
+=======
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
 import { Response } from "express";
 import { AuthRequest } from "../middlewares/auth.middleware";
 import Comment from "../models/comment.model";
 import Post from "../models/post.model";
 import Notification from "../models/notification.model";
+<<<<<<< HEAD
 import Reaction from "../models/reaction.model";
+=======
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
 
 // API gửi binh luận
 export const createComment = async (req: AuthRequest, res: Response) => {
@@ -69,11 +75,15 @@ export const createComment = async (req: AuthRequest, res: Response) => {
 export const getCommentsByPost = async (req: AuthRequest, res: Response) => {
     try {
         const postId = req.params.postId;
+<<<<<<< HEAD
         const currentUserId = req.user?.id;
+=======
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
 
         // Lấy toàn bộ bình luận của bài viết. 
         const comments = await Comment.find({ postId: postId })
             .sort({ createdAt: 1 }) 
+<<<<<<< HEAD
             .populate("userId", "username avatar") // SỬA: avatarUrl -> avatar
             .lean(); 
 
@@ -106,18 +116,31 @@ export const getCommentsByPost = async (req: AuthRequest, res: Response) => {
             };
         }));
 
+=======
+            .populate("userId", "username avatarUrl")
+            .lean(); 
+
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
         // --- THUẬT TOÁN XẾP CÂY (TREE BUILDER) ---
         const commentMap: any = {};
         const rootComments: any[] = [];
 
         // Bước 1: Khởi tạo mảng 'replies' rỗng cho tất cả mọi người và đưa vào Map
+<<<<<<< HEAD
         commentsWithDetails.forEach(comment => {
+=======
+        comments.forEach(comment => {
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
             comment.replies = [];
             commentMap[comment._id.toString()] = comment;
         });
 
         // Bước 2: Duyệt lại lần nữa để nhận cha - con
+<<<<<<< HEAD
         commentsWithDetails.forEach(comment => {
+=======
+        comments.forEach(comment => {
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
             if (comment.parentId) {
                 const parentString = comment.parentId.toString();
                 if (commentMap[parentString]) {

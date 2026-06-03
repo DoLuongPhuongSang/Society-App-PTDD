@@ -27,7 +27,11 @@ public class CreatePostActivity extends AppCompatActivity {
 
             getSupportFragmentManager()
                     .beginTransaction()
+<<<<<<< HEAD
                     .replace(R.id.fragment_container, fragment)
+=======
+                    .replace(R.id.fragmentContainer, fragment)
+>>>>>>> 2c8bafa87f91d43cde9bb86ad3b9bbb19595be6b
                     .commit();
         }
     }
