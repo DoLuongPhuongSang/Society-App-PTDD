@@ -231,10 +231,18 @@ export const getMyProfile = async (
       return;
     }
 
-    const friendCount = await Friend.countDocuments({
+    // Chỉ đếm bạn bè mà tài khoản còn tồn tại (tránh đếm user đã bị xóa)
+    const friendships = await Friend.find({
       $or: [{ requester: userId }, { recipient: userId }],
       status: "accepted",
-    });
+    })
+      .populate("requester", "_id")
+      .populate("recipient", "_id")
+      .lean();
+
+    const friendCount = friendships.filter(
+      (f: any) => f.requester && f.recipient
+    ).length;
 
     const groupCount = await Group.countDocuments({
       "member.userId": userId,

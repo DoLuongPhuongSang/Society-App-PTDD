@@ -1,41 +1,33 @@
 package com.example.frontend.ui.profile;
 
-import android.content.SharedPreferences;
+import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
 
 import com.bumptech.glide.Glide;
 import com.example.frontend.R;
-import com.example.frontend.data.model.ApiResponse;
 import com.example.frontend.data.model.Conversation;
-import com.example.frontend.data.model.User;
 import com.example.frontend.data.remote.ApiClient;
 import com.example.frontend.data.remote.ApiService;
 import com.example.frontend.data.repository.ChatRepository;
-import com.example.frontend.ui.chat.ChatDetailFragment;
+import com.example.frontend.ui.chat.ChatDetailActivity;
 import com.example.frontend.utils.Result;
 import com.google.android.material.button.MaterialButton;
-
-import java.util.HashMap;
-import java.util.Map;
+import com.google.gson.Gson;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class FriendProfileActivity extends AppCompatActivity {
 
     private String friendId;
     private ChatRepository chatRepository;
     private final MutableLiveData<Result<Conversation>> convLive = new MutableLiveData<>();
+    private MaterialButton btnMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +43,7 @@ public class FriendProfileActivity extends AppCompatActivity {
 
         CircleImageView imgAvatar = findViewById(R.id.imgAvatar);
         TextView tvName = findViewById(R.id.tvFriendName);
-        MaterialButton btnMessage = findViewById(R.id.btnMessage);
+        btnMessage = findViewById(R.id.btnMessage);
 
         tvName.setText(friendName != null ? friendName : "");
         if (friendAvatar != null && !friendAvatar.isEmpty()) {
@@ -61,24 +53,30 @@ public class FriendProfileActivity extends AppCompatActivity {
 
         chatRepository = new ChatRepository(this);
 
-        // Nút nhắn tin → tạo/lấy conversation rồi mở ChatDetailFragment
+        // Nút nhắn tin → tạo/lấy conversation → mở ChatDetailActivity
         btnMessage.setOnClickListener(v -> {
             if (friendId == null) return;
             btnMessage.setEnabled(false);
+            btnMessage.setText("Đang mở...");
             chatRepository.getOrCreateConversation(friendId, convLive);
         });
 
         convLive.observe(this, result -> {
             if (result == null) return;
             if (result.status == Result.Status.SUCCESS && result.data != null) {
-                Fragment chatFrag = ChatDetailFragment.newInstance(result.data, null);
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.friendPostsContainer, chatFrag)
-                        .addToBackStack(null)
-                        .commit();
+                // Chuyển hẳn sang ChatDetailActivity
+                String convJson = new Gson().toJson(result.data);
+                Intent intent = new Intent(this, ChatDetailActivity.class);
+                intent.putExtra(ChatDetailActivity.EXTRA_CONVERSATION_JSON, convJson);
+                startActivity(intent);
+                // Reset nút sau khi quay lại
+                btnMessage.setEnabled(true);
+                btnMessage.setText("💬 Nhắn tin");
             } else if (result.status == Result.Status.ERROR) {
                 btnMessage.setEnabled(true);
-                Toast.makeText(this, "Không thể mở chat: " + result.message, Toast.LENGTH_SHORT).show();
+                btnMessage.setText("💬 Nhắn tin");
+                Toast.makeText(this, "Không thể mở chat: " + result.message,
+                        Toast.LENGTH_SHORT).show();
             }
         });
 

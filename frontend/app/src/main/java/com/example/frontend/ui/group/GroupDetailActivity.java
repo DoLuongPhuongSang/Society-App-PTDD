@@ -24,6 +24,13 @@ import com.example.frontend.data.model.GroupDetail;
 import com.example.frontend.data.model.GroupPost;
 import com.example.frontend.data.repository.GroupRepository;
 import com.example.frontend.utils.Result;
+import com.example.frontend.data.remote.ApiClient;
+import com.example.frontend.data.remote.ApiService;
+import com.example.frontend.data.model.ApiResponse;
+import com.example.frontend.data.model.ReactionRequest;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import java.util.HashMap;
 import java.util.List;
@@ -98,13 +105,20 @@ public class GroupDetailActivity extends AppCompatActivity {
             startActivity(i);
         });
 
-        // Reaction listener
+        // Reaction listener — gọi API thực sự
+        ApiService apiService = ApiClient.getApiService(this);
         postAdapter.setOnReactionListener((postId, type) -> {
-            Map<String, String> body = new HashMap<>();
-            body.put("targetId", postId);
-            body.put("type", type);
-            // Gọi reaction API (dùng PostRepository nếu có, hoặc thêm method vào GroupRepository)
-            // Tạm dùng shared prefs để lấy token rồi gọi trực tiếp nếu cần
+            ReactionRequest req = new ReactionRequest(postId, "Post", type != null ? type : "Like");
+            apiService.toggleReaction(req).enqueue(new Callback<ApiResponse<Object>>() {
+                @Override
+                public void onResponse(Call<ApiResponse<Object>> call, Response<ApiResponse<Object>> response) {
+                    // UI đã cập nhật optimistically trong adapter
+                }
+                @Override
+                public void onFailure(Call<ApiResponse<Object>> call, Throwable t) {
+                    Toast.makeText(GroupDetailActivity.this, "Lỗi kết nối", Toast.LENGTH_SHORT).show();
+                }
+            });
         });
 
         // Infinite scroll

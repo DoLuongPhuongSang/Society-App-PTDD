@@ -14,7 +14,7 @@ import Friend from '../models/friend.model';
 // =====================================
 export const createPost = async (req: AuthRequest, res: Response) => {
     try {
-        const { content, privacy, groupId } = req.body;
+        const { content, privacy, groupId, tags, initialReaction } = req.body;
         const authorId = req.user?.id;
 
         // Nếu đăng vào nhóm, kiểm tra user có phải thành viên không
@@ -34,6 +34,7 @@ export const createPost = async (req: AuthRequest, res: Response) => {
             groupId: groupId || null,
             content: content,
             privacy: privacy || "Public",
+            tags: tags ? (Array.isArray(tags) ? tags : JSON.parse(tags)) : []
         });
 
         const savePost = await newPost.save();
@@ -50,6 +51,22 @@ export const createPost = async (req: AuthRequest, res: Response) => {
                 };
             });
             await Media.insertMany(mediaDocument);
+        }
+
+        // Nếu client muốn thêm 1 reaction mặc định (ví dụ: tác giả bấm cảm xúc khi đăng),
+        // ta tạo 1 document Reaction tương ứng.
+        if (initialReaction) {
+            try {
+                const react = new Reaction({
+                    userId: authorId,
+                    targetId: savePost._id,
+                    targetType: 'Post',
+                    type: initialReaction
+                });
+                await react.save();
+            } catch (e) {
+                console.error('Không thể lưu reaction ban đầu:', e);
+            }
         }
 
         res.status(201).json({
