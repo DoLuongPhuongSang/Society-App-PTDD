@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import android.util.Log;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.MutableLiveData;
 
@@ -55,9 +55,16 @@ public class FriendProfileActivity extends AppCompatActivity {
 
         // Nút nhắn tin → tạo/lấy conversation → mở ChatDetailActivity
         btnMessage.setOnClickListener(v -> {
-            if (friendId == null) return;
+            Log.d("CHAT_DEBUG", "friendId = " + friendId);
+
+            if (friendId == null) {
+                Log.e("CHAT_DEBUG", "friendId NULL");
+                return;
+            }
+
             btnMessage.setEnabled(false);
             btnMessage.setText("Đang mở...");
+
             chatRepository.getOrCreateConversation(friendId, convLive);
         });
 
@@ -70,14 +77,23 @@ public class FriendProfileActivity extends AppCompatActivity {
                 intent.putExtra(ChatDetailActivity.EXTRA_CONVERSATION_JSON, convJson);
                 startActivity(intent);
                 // Reset nút sau khi quay lại
+                Log.d("CHAT_DEBUG", "friendId = " + friendId);
                 btnMessage.setEnabled(true);
                 btnMessage.setText("💬 Nhắn tin");
+                Log.e("CHAT_DEBUG", "error = " + result.message);
             } else if (result.status == Result.Status.ERROR) {
-                btnMessage.setEnabled(true);
-                btnMessage.setText("💬 Nhắn tin");
-                Toast.makeText(this, "Không thể mở chat: " + result.message,
-                        Toast.LENGTH_SHORT).show();
-            }
+
+            Log.e("CHAT_DEBUG", "Open chat failed: " + result.message);
+
+            btnMessage.setEnabled(true);
+            btnMessage.setText("💬 Nhắn tin");
+
+            Toast.makeText(
+                    this,
+                    "Không thể mở chat: " + result.message,
+                    Toast.LENGTH_LONG
+            ).show();
+        }
         });
 
         // Hiện bài viết của bạn
