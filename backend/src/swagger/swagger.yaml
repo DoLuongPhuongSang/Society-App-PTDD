@@ -1,0 +1,378 @@
+openapi: 3.0.0
+
+info:
+  title: Society Mobile API
+  version: 1.0.0
+  description: API documentation cho ứng dụng Society
+
+servers:
+  - url: http://localhost:3000
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        dateOfBirth:
+          type: string
+          nullable: true
+        gender:
+          type: string
+          nullable: true
+        avatar:
+          type: string
+          nullable: true
+        bio:
+          type: string
+          nullable: true
+        isVerified:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+paths:
+
+  # ================= AUTH =================
+
+  /auth/register:
+    post:
+      summary: Đăng ký tài khoản
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, email, password]
+              properties:
+                username:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+                dateOfBirth:
+                  type: string
+                gender:
+                  type: string
+      responses:
+        201:
+          description: Đăng ký thành công
+
+  /auth/login:
+    post:
+      summary: Đăng nhập
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        200:
+          description: Đăng nhập thành công
+
+  /auth/refresh-token:
+    post:
+      summary: Làm mới token
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        200:
+          description: Thành công
+
+  /auth/logout:
+    post:
+      summary: Đăng xuất
+      tags: [Auth]
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Đăng xuất thành công
+
+  /auth/me:
+    get:
+      summary: Lấy thông tin user hiện tại
+      tags: [Auth]
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: OK
+
+  # ================= FRIEND =================
+
+  /friends:
+    get:
+      tags: [Friend]
+      summary: Lấy danh sách bạn bè
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Thành công
+          content:
+            application/json:
+              example:
+                success: true
+                data:
+                  - _id: "user_id"
+                    username: "duong"
+                    email: "duong@gmail.com"
+                    avatar: "url"
+
+  /friends/pending:
+    get:
+      tags: [Friend]
+      summary: Lấy danh sách lời mời kết bạn
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Thành công
+          content:
+            application/json:
+              example:
+                success: true
+                data:
+                  - _id: "friend_id"
+                    requester:
+                      _id: "user_id"
+                      username: "abc"
+                    mutualFriends: 3
+
+  /friends/suggestions:
+    get:
+      tags: [Friend]
+      summary: Gợi ý kết bạn
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Thành công
+
+  /friends/status/{id}:
+    get:
+      tags: [Friend]
+      summary: Kiểm tra trạng thái bạn bè
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Trạng thái
+          content:
+            application/json:
+              example:
+                success: true
+                status: "friends"
+
+  /friends/request/{id}:
+    post:
+      tags: [Friend]
+      summary: Gửi lời mời kết bạn
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        201:
+          description: Gửi thành công
+
+  /friends/accept/{id}:
+    put:
+      tags: [Friend]
+      summary: Chấp nhận lời mời
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Đã chấp nhận
+
+  /friends/decline/{id}:
+    delete:
+      tags: [Friend]
+      summary: Từ chối lời mời
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Đã từ chối
+
+  /friends/remove/{id}:
+    delete:
+      tags: [Friend]
+      summary: Huỷ kết bạn
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Đã huỷ kết bạn
+
+ # ================= DOCUMENT =================
+ # ================= DOCUMENT =================
+
+  /documents:
+    post:
+      tags: [Document]
+      summary: Tạo tài liệu mới
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              mediaId: "media_id"
+              title: "Tài liệu NodeJS"
+              description: "Tài liệu học backend"
+              fileType: "pdf"
+              subject: "Backend"
+              visibility: "public"
+              groupId: null
+      responses:
+        201:
+          description: Tạo thành công
+
+    get:
+      tags: [Document]
+      summary: Lấy danh sách tài liệu public
+      responses:
+        200:
+          description: Thành công
+
+
+  /documents/{id}:
+    get:
+      tags: [Document]
+      summary: Lấy chi tiết tài liệu
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Thành công
+
+    patch:
+      tags: [Document]
+      summary: Cập nhật tài liệu
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Thành công
+
+    delete:
+      tags: [Document]
+      summary: Xoá tài liệu
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Thành công
+
+
+  /documents/{id}/download:
+    post:
+      tags: [Document]
+      summary: Tăng lượt download
+      responses:
+        200:
+          description: Thành công
+
+
+  /documents/me:
+    get:
+      tags: [Document]
+      summary: Lấy tài liệu của chính mình
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Thành công
+
+
+  /documents/user/{userId}:
+    get:
+      tags: [Document]
+      summary: Lấy tài liệu public của user
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Thành công
+
+
+  /documents/saved:
+    get:
+      tags: [Document]
+      summary: Lấy tài liệu đã lưu
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Thành công
