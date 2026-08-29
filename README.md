@@ -175,9 +175,3 @@ Các biến quan trọng bao gồm:
 - Library / tài liệu nội bộ
 
 ---
-
-## 📘 8. Kết luận
-
-Society App PTDD là một dự án full-stack có phạm vi khá rộng, từ xác thực người dùng, bài viết, story, kết bạn, group, media, realtime chat cho đến quiz và live. Đây là project phù hợp để học tập, phát triển kỹ năng backend/frontend tích hợp, và mô phỏng quy trình xây dựng một ứng dụng mạng xã hội thực tế.
-
----
