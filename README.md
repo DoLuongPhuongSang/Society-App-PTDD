@@ -72,7 +72,7 @@ Android / Web App
    └── Cloud Database & Storage
          ├── MongoDB / Database (Dữ liệu người dùng, bài viết, tin nhắn)
          └── Cloudinary (Hình ảnh, Video, File media)
-
+```
 
 ---
 
